@@ -1,0 +1,117 @@
+# Makefile for the Ruby binding of Hyper Estraier
+
+
+
+#================================================================
+# Setting Variables
+#================================================================
+
+
+# Generic settings
+SHELL = @SHELL@
+
+# Packaging
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+
+# Targets
+MYRBLIBS = estraier.so
+MYRBBINS = estcmd.rb
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+MYLIBDIR = @libdir@
+MYRBLIBDIR = @MYRBLIBDIR@
+MYRBBINDIR = @bindir@
+DESTDIR =
+
+# Building binaries
+RUBY = @RUBY@
+RDOC = @RDOC@
+RUNENV = LD_LIBRARY_PATH=.:..:/lib:/usr/lib:$(MYLIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
+
+
+
+#================================================================
+# Actions
+#================================================================
+
+
+all :
+	( cd src && if ! [ -f Makefile ] ; then $(RUBY) extconf.rb ; fi )
+	( cd src && make )
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Ready to install.\n'
+	@printf '#================================================================\n'
+
+
+clean :
+	( cd src && if [ -f Makefile ] ; then make clean ; fi )
+	rm -rf check.out casket *~
+
+
+install :
+	mkdir -p $(DESTDIR)$(MYRBLIBDIR)
+	( cd src && cp -Rf $(MYRBLIBS) $(DESTDIR)$(MYRBLIBDIR) )
+	mkdir -p $(DESTDIR)$(MYRBBINDIR)
+	cp -Rf $(MYRBBINS) $(DESTDIR)$(MYRBBINDIR)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Thanks for using Hyper Estraier for Ruby.\n'
+	@printf '#================================================================\n'
+
+
+uninstall :
+	cd $(DESTDIR)$(MYRBLIBDIR) && rm -f $(MYRBLIBS)
+	cd $(DESTDIR)$(MYRBBINDIR) && rm -f $(MYRBBINS)
+
+
+dist :
+	autoconf
+	make doc
+	make distclean
+
+
+distclean : clean
+	( cd src && if [ -f Makefile ] ; then make distclean ; fi )
+	cd example && make clean
+	rm -rf Makefile config.cache config.log config.status autom4te.cache src/mkmf.log
+
+
+check :
+	rm -rf casket
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb put casket ../misc/test001.est
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb put casket ../misc/test002.est
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb put casket ../misc/test003.est
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb put casket ../misc/test004.est
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb put casket ../misc/test005.est
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb put casket ../misc/test006.est
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb edit casket 1 "@title" "java"
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb get casket 1
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb get casket 1 "@title"
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb out casket 1
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb inform casket
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb optimize casket
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb search \
+	  -vf -cd casket "estraier" > check.out
+	$(RUNENV) $(RUBY) -I./src -w -d estcmd.rb search \
+	  -vs -gs -attr "@uri" -ord "@mdate NUMD" -max 1 casket "estraier OR mikio" > check.out
+	rm -rf casket
+
+
+doc :
+	make docclean
+	$(RDOC) -t estraier -o ../doc/rubynativeapi estraier-doc.rb
+
+
+docclean :
+	rm -rf ../doc/rubynativeapi
+
+
+.PHONY : all clean install casket check
+
+
+
+# END OF FILE

@@ -1,0 +1,133 @@
+# Makefile for the pure Java interface of Hyper Estraier
+
+
+
+#================================================================
+# Setting Variables
+#================================================================
+
+
+# Generic settings
+SHELL = @SHELL@
+
+# Packaging
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+
+# Targets
+MYJARS = estraierpure.jar
+MYJAVAS = Document.java Condition.java ResultDocument.java NodeResult.java Node.java \
+  Utility.java Call.java
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+MYLIBDIR = @libdir@
+DESTDIR =
+
+# Building binaries
+MYJAVAHOME = @MYJAVAHOME@
+JVMPLATFORM = @JVMPLATFORM@
+JAVAC = @JAVAC@
+JAVACFLAGS = -d .
+JAR = @JAR@
+JAVAH = @JAVAH@
+JAVADOC = @JAVADOC@
+JAVARUN = @JAVARUN@
+
+
+
+#================================================================
+# Actions
+#================================================================
+
+
+all : $(MYJARS)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Ready to install.\n'
+	@printf '#================================================================\n'
+
+
+clean :
+	rm -rf estraier *.class $(MYJARS) *.jar *.o *.a *.so \
+	  *.exe *.dll.a *.dll *.dylib *.jnilib *.sl a.out casket *~
+
+
+install :
+	mkdir -p $(DESTDIR)$(MYLIBDIR)
+	cp -Rf $(MYJARS) $(DESTDIR)$(MYLIBDIR)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Thanks for using Hyper Estraier for Java.\n'
+	@printf '#================================================================\n'
+
+
+uninstall :
+	cd $(DESTDIR)$(MYLIBDIR) && rm -f $(MYJARS)
+
+
+dist :
+	autoconf
+	make doc
+	make distclean
+
+
+distclean : clean
+	cd example && make clean
+	rm -rf Makefile config.cache config.log config.status autom4te.cache
+
+
+check :
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call put -auth admin admin \
+	  "http://localhost:1978/node/sample1" ../misc/test001.est
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call put -auth admin admin \
+	  "http://localhost:1978/node/sample1" ../misc/test002.est
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call out -auth admin admin \
+	  "http://localhost:1978/node/sample1" 1
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call edit -auth admin admin \
+	  "http://localhost:1978/node/sample1" 2 "@title" "Super Nova"
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call get \
+	  "http://localhost:1978/node/sample1" 2
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call etch \
+	  "http://localhost:1978/node/sample1" 2
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call inform \
+	  "http://localhost:1978/node/sample1"
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call search \
+	  "http://localhost:1978/node/sample1" "mikio"
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call search -attr "@uri" -ord "@title" \
+	  "http://localhost:1978/node/sample1" "i"
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call setuser -auth admin admin \
+	  "http://localhost:1978/node/sample1" mikio 1
+	$(JAVARUN) -cp estraierpure.jar estraier.pure.Call setlink -auth admin admin \
+	  "http://localhost:1978/node/sample1" "http://localhost:1978/node/sample2" \
+	  "Sample2" 10
+
+
+doc :
+	make docclean
+	mkdir -p ../doc/javapureapi
+	$(JAVADOC) -locale en -windowtitle estraier.pure -overview overview.html \
+	  -tag note:a:"Note:" -d ../doc/javapureapi -nodeprecated -nohelp -quiet *.java
+
+
+docclean :
+	rm -rf ../doc/javapureapi
+
+
+.PHONY : all clean install casket check
+
+
+
+#================================================================
+# Building binaries
+#================================================================
+
+
+estraierpure.jar : $(MYJAVAS)
+	$(JAVAC) $(JAVACFLAGS) $(MYJAVAS)
+	$(JAR) cvf $@ estraier/pure/*.class
+
+
+
+# END OF FILE

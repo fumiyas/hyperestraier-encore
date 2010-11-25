@@ -1,0 +1,116 @@
+# Makefile for the pure Ruby interface of Hyper Estraier
+
+
+
+#================================================================
+# Setting Variables
+#================================================================
+
+
+# Generic settings
+SHELL = @SHELL@
+
+# Packaging
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+
+# Targets
+MYRBLIBS = estraierpure.rb
+MYRBBINS = estcall.rb
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+MYRBLIBDIR = @MYRBLIBDIR@
+MYRBBINDIR = @bindir@
+DESTDIR =
+
+# Building binaries
+RUBY = @RUBY@
+RDOC = @RDOC@
+
+
+
+#================================================================
+# Actions
+#================================================================
+
+
+all :
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Ready to install.\n'
+	@printf '#================================================================\n'
+
+
+clean :
+	rm -rf check.out casket *~
+
+
+install :
+	mkdir -p $(DESTDIR)$(MYRBLIBDIR)
+	cp -Rf $(MYRBLIBS) $(DESTDIR)$(MYRBLIBDIR)
+	mkdir -p $(DESTDIR)$(MYRBBINDIR)
+	cp -Rf $(MYRBBINS) $(DESTDIR)$(MYRBBINDIR)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Thanks for using Hyper Estraier for Ruby.\n'
+	@printf '#================================================================\n'
+
+
+uninstall :
+	cd $(DESTDIR)$(MYRBLIBDIR) && rm -f $(MYRBLIBS)
+	cd $(DESTDIR)$(MYRBBINDIR) && rm -f $(MYRBBINS)
+
+
+dist :
+	autoconf
+	make doc
+	make distclean
+
+
+distclean : clean
+	cd example && make clean
+	rm -rf Makefile config.cache config.log config.status autom4te.cache
+
+
+check :
+	$(RUBY) -I. -w -d estcall.rb put -auth admin admin \
+	  "http://localhost:1978/node/sample1" ../misc/test001.est
+	$(RUBY) -I. -w -d  estcall.rb put -auth admin admin \
+	  "http://localhost:1978/node/sample1" ../misc/test002.est
+	$(RUBY) -I. -w -d  estcall.rb out -auth admin admin \
+	  "http://localhost:1978/node/sample1" 1
+	$(RUBY) -I. -w -d  estcall.rb edit -auth admin admin \
+	  "http://localhost:1978/node/sample1" 2 "@title" "Super Nova"
+	$(RUBY) -I. -w -d  estcall.rb get \
+	  "http://localhost:1978/node/sample1" 2
+	$(RUBY) -I. -w -d  estcall.rb etch \
+	  "http://localhost:1978/node/sample1" 2
+	$(RUBY) -I. -w -d  estcall.rb inform \
+	  "http://localhost:1978/node/sample1"
+	$(RUBY) -I. -w -d  estcall.rb search \
+	  "http://localhost:1978/node/sample1" "mikio"
+	$(RUBY) -I. -w -d  estcall.rb search -attr "@uri" -ord "@title" \
+	  "http://localhost:1978/node/sample1" "i"
+	$(RUBY) -I. -w -d  estcall.rb setuser -auth admin admin \
+	  "http://localhost:1978/node/sample1" mikio 1
+	$(RUBY) -I. -w -d  estcall.rb setlink -auth admin admin \
+	  "http://localhost:1978/node/sample1" "http://localhost:1978/node/sample2" \
+	  "Sample2" 10
+
+
+doc :
+	make docclean
+	$(RDOC) -t estraierpure -o ../doc/rubypureapi estraierpure.rb
+
+
+docclean :
+	rm -rf ../doc/rubypureapi
+
+
+.PHONY : all clean install casket check
+
+
+
+# END OF FILE

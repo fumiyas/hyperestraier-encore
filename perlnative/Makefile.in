@@ -1,0 +1,129 @@
+# Makefile for the Perl binding of Hyper Estraier
+
+
+
+#================================================================
+# Setting Variables
+#================================================================
+
+
+# Generic settings
+SHELL = @SHELL@
+
+# Packaging
+PACKAGE = @PACKAGE_NAME@
+VERSION = @PACKAGE_VERSION@
+
+# Targets
+MYPLBINS = estcmd.pl
+
+# Install destinations
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+MYHEADDIR = @includedir@
+MYLIBDIR = @libdir@
+MYPLLIBDIR = @MYPLLIBDIR@
+MYPLBINDIR = @bindir@
+DESTDIR =
+
+# Building binaries
+PERL = @PERL@
+POD2HTML = @POD2HTML@
+CC = gcc
+INC = -I. -I../.. -I$(MYHEADDIR) -I$(HOME)/include -I/usr/local/include
+OPTIMIZE = @MYOPTIMIZE@
+LD = gcc
+LIBS = -L../.. -L$(MYLIBDIR) -L$(HOME)/lib -L/usr/local/lib @LIBS@
+RUNENV = LD_LIBRARY_PATH=.:..:/lib:/usr/lib:$(MYLIBDIR):$(HOME)/lib:/usr/local/lib:@MYRUNPATH@
+
+
+
+#================================================================
+# Actions
+#================================================================
+
+
+all :
+	( cd src && if ! [ -f Makefile ] ; \
+	  then $(RUNENV) $(PERL) Makefile.PL CC="$(CC)" INC="$(INC)" OPTIMIZE="$(OPTIMIZE)" \
+	  LD="$(LD)" LIBS="$(LIBS)" PREFIX="$(prefix)" ; fi )
+	( cd src && make )
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Ready to install.\n'
+	@printf '#================================================================\n'
+
+
+clean :
+	( cd src && if [ -f Makefile ] ; then make -i clean ; fi )
+	cd src && rm -rf Makefile blib pm_to_blib *.c *.o *.bs *.old casket *~
+	rm -rf check.out casket *~
+
+
+install :
+	cd src && $(RUNENV) make install
+	mkdir -p $(DESTDIR)$(MYPLBINDIR)
+	cp -Rf $(MYPLBINS) $(DESTDIR)$(MYPLBINDIR)
+	@printf '\n'
+	@printf '#================================================================\n'
+	@printf '# Thanks for using Hyper Estraier for Perl.\n'
+	@printf '#================================================================\n'
+
+
+uninstall :
+	find $(DESTDIR)$(MYPLLIBDIR) -print | egrep 'Estraier(\.pm|\.so|\.bs|\.pod)?$$' | \
+	  egrep -v '/Search/Estraier' | xargs rm -rf
+	rm -f /usr/share/man/man3/Estraier.3pm /usr/local/share/man/man3/Estraier.3pm
+	cd $(DESTDIR)$(MYPLBINDIR) && rm -f $(MYPLBINS)
+
+
+dist :
+	autoconf
+	make doc
+	make distclean
+
+
+distclean : clean
+	( cd src && if [ -f Makefile ] ; then make distclean ; fi )
+	( cd src && rm -rf Makefile blib pm_to_blib *.c *.o *.bs *.old casket *~ )
+	cd example && make clean
+	rm -rf Makefile config.cache config.log config.status autom4te.cache
+
+
+check :
+	rm -rf casket
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl put casket ../misc/test001.est
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl put casket ../misc/test002.est
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl put casket ../misc/test003.est
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl put casket ../misc/test004.est
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl put casket ../misc/test005.est
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl put casket ../misc/test006.est
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl edit casket 1 "@title" "java"
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl get casket 1
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl get casket 1 "@title"
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl out casket 1
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl inform casket
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl optimize casket
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl search \
+	  -vf -cd casket "estraier" > check.out
+	$(RUNENV) $(PERL) -I./src -w estcmd.pl search \
+	  -vs -gs -attr "@uri" -ord "@mdate NUMD" -max 1 casket "estraier OR mikio" > check.out
+	rm -rf casket
+
+
+doc :
+	make docclean
+	mkdir -p ../doc/perlnativeapi
+	$(POD2HTML) --infile=src/Estraier.pod --outfile=../doc/perlnativeapi/index.html \
+	  --title="estraier" ; rm -f pod2*.tmp
+
+
+docclean :
+	rm -rf ../doc/perlnativeapi
+
+
+.PHONY : all clean install casket check
+
+
+
+# END OF FILE
