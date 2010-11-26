@@ -109,7 +109,6 @@
 #define ESTAIDXVLFBP   128               /* size of free block pool of narrowing DB */
 #define ESTAIKBUFSIZ   8192              /* size of a buffer for a key */
 #define ESTAISNUMMIN   256               /* minimum number of scores to use narrowing index */
-#define ESTOPDUMMY     "[DUMMY]"         /* dummy operator */
 
 #define ESTDBSBRAT     0.3               /* ratio of bucket numbers of large mode */
 #define ESTDBSDRAT     0.4               /* ratio of the division number of large mode */
@@ -231,6 +230,26 @@ enum {                                   /* enumration for phrase format */
   ESTPMISECT                             /* intersection phrase */
 };
 
+enum {
+  COP_ESTOPSTREQ,                        /* string is equal */
+  COP_ESTOPSTRNE,                        /* string is not equal */
+  COP_ESTOPSTRINC,                       /* string is included in */
+  COP_ESTOPSTRBW,                        /* string begins with */
+  COP_ESTOPSTREW,                        /* string ends with */
+  COP_ESTOPSTRAND,                       /* string includes all tokens in */
+  COP_ESTOPSTROR,                        /* string includes at least one token in */
+  COP_ESTOPSTROREQ,                      /* string is equal at least one token in */
+  COP_ESTOPSTRRX,                        /* string matches regular expressions of */
+  COP_ESTOPNUMEQ,                        /* number or date is equal */
+  COP_ESTOPNUMNE,                        /* number or date is not equal */
+  COP_ESTOPNUMGT,                        /* number or date is greater than */
+  COP_ESTOPNUMGE,                        /* number or date is greater than or equal to */
+  COP_ESTOPNUMLT,                        /* number or date is less than */
+  COP_ESTOPNUMLE,                        /* number or date is less than or equal to */
+  COP_ESTOPNUMBT,                        /* number or date is between two tokens of */
+  COP_ESTOPDUMMY                         /* dummy operator */
+};
+
 typedef struct {                         /* type of structure for a hitting object */
   int id;                                /* ID of a document */
   int score;                             /* score tuned by TF-IDF */
@@ -244,7 +263,7 @@ typedef struct {                         /* type of structure for a conditional 
   char *oper;                            /* operator */
   char *val;                             /* value */
   int vsiz;                              /* size of the value */
-  const char *cop;                       /* canonical operator */
+  int cop;                               /* canonical operator */
   int sign;                              /* positive or negative */
   char *sval;                            /* value of small cases */
   int ssiz;                              /* size of the small value */
@@ -318,14 +337,14 @@ static char *est_crget(CURIA *curia, int flags, int id, int *sp);
 static int est_aidx_seq_put(DEPOT *db, int id, const char *vbuf, int vsiz);
 static int est_aidx_seq_out(DEPOT *db, int id);
 static char *est_aidx_seq_get(DEPOT *db, int id, int *sp);
-static int est_aidx_seq_narrow(DEPOT *db, const CBLIST *pdocs, const char *cop, int sign,
+static int est_aidx_seq_narrow(DEPOT *db, const CBLIST *pdocs, int cop, int sign,
                                const char *oval, int osiz, const char *sval, int ssiz,
                                const void *regex, int onum, ESTSCORE *scores, int snum,
                                int limit, int *restp);
 static int est_aidx_numcmp(const char *aptr, int asiz, const char *bptr, int bsiz);
 static int est_aidx_attr_put(VILLA *db, int id, const char *vbuf, int vsiz);
 static int est_aidx_attr_out(VILLA *db, int id, const char *vbuf, int vsiz);
-static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop, int sign,
+static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, int cop, int sign,
                                 const char *oval, int osiz, const char *sval, int ssiz,
                                 const void *regex, int onum, ESTSCORE *scores, int snum);
 static int est_int_compare(const void *ap, const void *bp);
@@ -379,7 +398,7 @@ static ESTCATTR *est_make_cattr_list(const CBLIST *attrs, int *nump);
 static void est_free_cattr_list(ESTCATTR *list, int anum);
 static int est_eclipse_scores(ESTDB *db, ESTSCORE *scores, int snum, int num,
                               int vnum, int tfidf, double limit, CBMAP *shadows);
-static int est_match_attr(const char *tval, int tsiz, const char *cop, int sign,
+static int est_match_attr(const char *tval, int tsiz, int cop, int sign,
                           const char *oval, int osiz, const char *sval, int ssiz,
                           const void *regex, int onum);
 static int est_check_strand(const char *tval, const char *oval);
@@ -7445,7 +7464,7 @@ static char *est_aidx_seq_get(DEPOT *db, int id, int *sp){
 /* Narrow scores of search candidates with a sequencial attribute index.
    `db' specifies a handle of a sequencial attribute index.
    `pdocs' specifies a list of pseudo documents.
-   `cop' specifies the pointer to the operator.
+   `cop' specifies the enum to the operator.
    `sign' specifies the sign of operation.
    `oval' specifies the operation value.
    `osiz' specifies the size of the operation value
@@ -7458,13 +7477,13 @@ static char *est_aidx_seq_get(DEPOT *db, int id, int *sp){
    `limit' specifies the limit number to check.
    `restp' specifies the pointer to a variable to which rest number to be checked is assigned.
    The return value is the new number of the array. */
-static int est_aidx_seq_narrow(DEPOT *db, const CBLIST *pdocs, const char *cop, int sign,
+static int est_aidx_seq_narrow(DEPOT *db, const CBLIST *pdocs, int cop, int sign,
                                const char *oval, int osiz, const char *sval, int ssiz,
                                const void *regex, int onum, ESTSCORE *scores, int snum,
                                int limit, int *restp){
   char vbuf[ESTAIKBUFSIZ];
   int i, nnum, vsiz;
-  assert(db && cop && oval && osiz >= 0 && scores && snum >= 0 && limit >= 0 && restp);
+  assert(db && cop >= 0 && oval && osiz >= 0 && scores && snum >= 0 && limit >= 0 && restp);
   nnum = 0;
   for(i = 0; i < snum; i++){
     if(nnum >= limit){
@@ -7549,7 +7568,7 @@ static int est_aidx_attr_out(VILLA *db, int id, const char *vbuf, int vsiz){
 /* Narrow scores of search candidates with an attribute narrowing index.
    `db' specifies a handle of an attribute narrowing index.
    `pdocs' specifies a list of pseudo documents.
-   `cop' specifies the pointer to the operator.
+   `cop' specifies the enum to the operator.
    `sign' specifies the sign of operation.
    `oval' specifies the operation value.
    `osiz' specifies the size of the operation value
@@ -7560,7 +7579,7 @@ static int est_aidx_attr_out(VILLA *db, int id, const char *vbuf, int vsiz){
    `scores' specifies an array of scores of search candidates.
    `snum' specifies the number of the array.
    The return value is the new number of the array. */
-static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop, int sign,
+static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, int cop, int sign,
                                 const char *oval, int osiz, const char *sval, int ssiz,
                                 const void *regex, int onum, ESTSCORE *scores, int snum){
   CBDATUM *abuf;
@@ -7569,9 +7588,9 @@ static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop,
   char numbuf[ESTNUMBUFSIZ], *tmp, *wp;
   int i, j, ksiz, len, esc, jmp, id, nnum, *ary, anum;
   time_t lower, upper;
-  assert(db && pdocs && cop && oval && osiz >= 0 && scores && snum >= 0);
+  assert(db && pdocs && cop >= 0 && oval && osiz >= 0 && scores && snum >= 0);
   CB_DATUMOPEN(abuf);
-  if(cop == ESTOPSTROREQ && sign && !sval){
+  if(cop == COP_ESTOPSTROREQ && sign && !sval){
     tokens = cbsplit(oval, osiz, " ,");
     cblistsort(tokens);
     for(i = 0; i < CB_LISTNUM(tokens); i++){
@@ -7584,7 +7603,7 @@ static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop,
       }
     }
     CB_LISTCLOSE(tokens);
-  } else if(cop == ESTOPNUMBT && sign && !sval){
+  } else if(cop == COP_ESTOPNUMBT && sign && !sval){
     CB_MEMDUP(tmp, oval, osiz);
     if((wp = strchr(tmp, ' ')) != NULL || (wp = strchr(tmp, '\t')) != NULL){
       *(wp++) = '\0';
@@ -7607,7 +7626,7 @@ static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop,
   } else if(!sign || sval){
     esc = INT_MAX;
     jmp = INT_MAX;
-    if(sign && (cop == ESTOPSTREQ || cop == ESTOPSTRBW) && osiz > 0){
+    if(sign && (cop == COP_ESTOPSTREQ || cop == COP_ESTOPSTRBW) && osiz > 0){
       if(*sval > 0x0 && *sval < 0x7f){
         numbuf[0] = *sval;
         numbuf[1] = '\0';
@@ -7644,18 +7663,18 @@ static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop,
       }
     }
   } else {
-    if(cop == ESTOPSTREQ || cop == ESTOPSTRBW ||
-       cop == ESTOPNUMEQ || cop == ESTOPNUMGT || cop == ESTOPNUMGE){
+    if(cop == COP_ESTOPSTREQ || cop == COP_ESTOPSTRBW ||
+       cop == COP_ESTOPNUMEQ || cop == COP_ESTOPNUMGT || cop == COP_ESTOPNUMGE){
       vlcurjump(db, oval, osiz, VL_JFORWARD);
-      if(cop == ESTOPNUMGT){
+      if(cop == COP_ESTOPNUMGT){
         while((kbuf = vlcurkeycache(db, NULL)) != NULL && cbstrmktime(kbuf) <= onum){
           vlcurnext(db);
         }
       }
-    } else if(cop == ESTOPNUMLT || cop == ESTOPNUMLE){
+    } else if(cop == COP_ESTOPNUMLT || cop == COP_ESTOPNUMLE){
       len = sprintf(numbuf, "%.0f", (double)cbstrmktime(oval) + 1);
       vlcurjump(db, numbuf, len, VL_JBACKWARD);
-      if(cop == ESTOPNUMLT){
+      if(cop == COP_ESTOPNUMLT){
         while((kbuf = vlcurkeycache(db, NULL)) != NULL && cbstrmktime(kbuf) >= onum){
           vlcurprev(db);
         }
@@ -7667,10 +7686,10 @@ static int est_aidx_attr_narrow(VILLA *db, const CBLIST *pdocs, const char *cop,
       if(est_match_attr(kbuf, ksiz - sizeof(int) - 1,
                         cop, TRUE, oval, osiz, sval, ssiz, regex, onum)){
         CB_DATUMCAT(abuf, kbuf + ksiz - sizeof(int), sizeof(int));
-      } else if(cop == ESTOPSTREQ || cop == ESTOPSTRBW || cop == ESTOPNUMEQ){
+      } else if(cop == COP_ESTOPSTREQ || cop == COP_ESTOPSTRBW || cop == COP_ESTOPNUMEQ){
         break;
       }
-      if(cop == ESTOPNUMLT || cop == ESTOPNUMLE){
+      if(cop == COP_ESTOPNUMLT || cop == COP_ESTOPNUMLE){
         vlcurprev(db);
       } else {
         vlcurnext(db);
@@ -8983,10 +9002,11 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
   CBDATUM *abuf;
   CBLIST *tokens;
   void *regex;
-  const char *cop, *pv, *kbuf, *tbuf;
+  const char *copv, *pv, *kbuf, *tbuf;
   unsigned char *utmp;
   char *name, *oper, *val, *sval, *wp, numbuf[ESTNUMBUFSIZ];
   int i, nsiz, vsiz, ksiz, tsiz, sign, ic, ssiz, esc, jmp, len, *ary, anum;
+  int cop;
   time_t num, lower, upper;
   assert(db && expr && nump);
   name = NULL;
@@ -9026,55 +9046,55 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
     vsiz = 0;
     val = cbmemdup("", 0);
   }
-  cop = oper;
-  if(*cop == '!'){
+  copv = oper;
+  if(*copv == '!'){
     sign = FALSE;
-    cop++;
+    copv++;
   } else {
     sign = TRUE;
   }
-  if(*cop == 'I' || *cop == 'i'){
+  if(*copv == 'I' || *copv == 'i'){
     ic = !est_check_cjk_only(val);
-    cop++;
+    copv++;
   } else {
     ic = FALSE;
   }
   regex = NULL;
-  if(!cbstricmp(cop, ESTOPSTREQ)){
-    cop = ESTOPSTREQ;
-  } else if(!cbstricmp(cop, ESTOPSTRNE)){
-    cop = ESTOPSTRNE;
-  } else if(!cbstricmp(cop, ESTOPSTRINC)){
-    cop = ESTOPSTRINC;
-  } else if(!cbstricmp(cop, ESTOPSTRBW)){
-    cop = ESTOPSTRBW;
-  } else if(!cbstricmp(cop, ESTOPSTREW)){
-    cop = ESTOPSTREW;
-  } else if(!cbstricmp(cop, ESTOPSTRAND)){
-    cop = ESTOPSTRAND;
-  } else if(!cbstricmp(cop, ESTOPSTROR)){
-    cop = ESTOPSTROR;
-  } else if(!cbstricmp(cop, ESTOPSTROREQ)){
-    cop = ESTOPSTROREQ;
-  } else if(!cbstricmp(cop, ESTOPSTRRX)){
-    cop = ESTOPSTRRX;
+  if(!cbstricmp(copv, ESTOPSTREQ)){
+    cop = COP_ESTOPSTREQ;
+  } else if(!cbstricmp(copv, ESTOPSTRNE)){
+    cop = COP_ESTOPSTRNE;
+  } else if(!cbstricmp(copv, ESTOPSTRINC)){
+    cop = COP_ESTOPSTRINC;
+  } else if(!cbstricmp(copv, ESTOPSTRBW)){
+    cop = COP_ESTOPSTRBW;
+  } else if(!cbstricmp(copv, ESTOPSTREW)){
+    cop = COP_ESTOPSTREW;
+  } else if(!cbstricmp(copv, ESTOPSTRAND)){
+    cop = COP_ESTOPSTRAND;
+  } else if(!cbstricmp(copv, ESTOPSTROR)){
+    cop = COP_ESTOPSTROR;
+  } else if(!cbstricmp(copv, ESTOPSTROREQ)){
+    cop = COP_ESTOPSTROREQ;
+  } else if(!cbstricmp(copv, ESTOPSTRRX)){
+    cop = COP_ESTOPSTRRX;
     regex = est_regex_new(val);
-  } else if(!cbstricmp(cop, ESTOPNUMEQ)){
-    cop = ESTOPNUMEQ;
-  } else if(!cbstricmp(cop, ESTOPNUMNE)){
-    cop = ESTOPNUMNE;
-  } else if(!cbstricmp(cop, ESTOPNUMGT)){
-    cop = ESTOPNUMGT;
-  } else if(!cbstricmp(cop, ESTOPNUMGE)){
-    cop = ESTOPNUMGE;
-  } else if(!cbstricmp(cop, ESTOPNUMLT)){
-    cop = ESTOPNUMLT;
-  } else if(!cbstricmp(cop, ESTOPNUMLE)){
-    cop = ESTOPNUMLE;
-  } else if(!cbstricmp(cop, ESTOPNUMBT)){
-    cop = ESTOPNUMBT;
+  } else if(!cbstricmp(copv, ESTOPNUMEQ)){
+    cop = COP_ESTOPNUMEQ;
+  } else if(!cbstricmp(copv, ESTOPNUMNE)){
+    cop = COP_ESTOPNUMNE;
+  } else if(!cbstricmp(copv, ESTOPNUMGT)){
+    cop = COP_ESTOPNUMGT;
+  } else if(!cbstricmp(copv, ESTOPNUMGE)){
+    cop = COP_ESTOPNUMGE;
+  } else if(!cbstricmp(copv, ESTOPNUMLT)){
+    cop = COP_ESTOPNUMLT;
+  } else if(!cbstricmp(copv, ESTOPNUMLE)){
+    cop = COP_ESTOPNUMLE;
+  } else if(!cbstricmp(copv, ESTOPNUMBT)){
+    cop = COP_ESTOPNUMBT;
   } else {
-    cop = ESTOPSTRINC;
+    cop = COP_ESTOPSTRINC;
     val[0] = '\0';
     vsiz = 0;
   }
@@ -9082,8 +9102,8 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
   if(!(attridx = (ESTATTRIDX *)cbmapget(db->aidxs, name, nsiz, NULL)) ||
      (attridx->type != ESTIDXATTRSTR && attridx->type != ESTIDXATTRNUM) ||
      (attridx->type == ESTIDXATTRNUM &&
-      cop != ESTOPNUMEQ && cop != ESTOPNUMNE && cop != ESTOPNUMGT && cop != ESTOPNUMGE &&
-      cop != ESTOPNUMLT && cop != ESTOPNUMLE && cop != ESTOPNUMBT)){
+      cop != COP_ESTOPNUMEQ && cop != COP_ESTOPNUMNE && cop != COP_ESTOPNUMGT && cop != COP_ESTOPNUMGE &&
+      cop != COP_ESTOPNUMLT && cop != COP_ESTOPNUMLE && cop != COP_ESTOPNUMBT)){
     if(regex) est_regex_delete(regex);
     free(val);
     free(oper);
@@ -9104,7 +9124,7 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
     }
     esc = INT_MAX;
     jmp = INT_MAX;
-    if(sign && (cop == ESTOPSTREQ || cop == ESTOPSTRBW) && vsiz > 0){
+    if(sign && (cop == COP_ESTOPSTREQ || cop == COP_ESTOPSTRBW) && vsiz > 0){
       if(*sval > 0x0 && *sval < 0x7f){
         numbuf[0] = *sval;
         numbuf[1] = '\0';
@@ -9141,7 +9161,7 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
       }
     }
     if(sval) free(sval);
-  } else if(cop == ESTOPSTROREQ){
+  } else if(cop == COP_ESTOPSTROREQ){
     tokens = cbsplit(val, vsiz, " ,");
     cblistsort(tokens);
     for(i = 0; i < CB_LISTNUM(tokens); i++){
@@ -9153,7 +9173,7 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
       }
     }
     CB_LISTCLOSE(tokens);
-  } else if(cop == ESTOPNUMBT){
+  } else if(cop == COP_ESTOPNUMBT){
     if((wp = strchr(val, ' ')) != NULL || (wp = strchr(val, '\t')) != NULL){
       *(wp++) = '\0';
       while(*wp == ' ' || *wp == '\t'){
@@ -9172,18 +9192,18 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
       vlcurnext(attridx->db);
     }
   } else {
-    if(cop == ESTOPSTREQ || cop == ESTOPSTRBW ||
-       cop == ESTOPNUMEQ || cop == ESTOPNUMGT || cop == ESTOPNUMGE){
+    if(cop == COP_ESTOPSTREQ || cop == COP_ESTOPSTRBW ||
+       cop == COP_ESTOPNUMEQ || cop == COP_ESTOPNUMGT || cop == COP_ESTOPNUMGE){
       vlcurjump(attridx->db, val, vsiz, VL_JFORWARD);
-      if(cop == ESTOPNUMGT){
+      if(cop == COP_ESTOPNUMGT){
         while((kbuf = vlcurkeycache(attridx->db, NULL)) != NULL && cbstrmktime(kbuf) <= num){
           vlcurnext(attridx->db);
         }
       }
-    } else if(cop == ESTOPNUMLT || cop == ESTOPNUMLE){
+    } else if(cop == COP_ESTOPNUMLT || cop == COP_ESTOPNUMLE){
       len = sprintf(numbuf, "%.0f", (double)cbstrmktime(val) + 1);
       vlcurjump(attridx->db, numbuf, len, VL_JBACKWARD);
-      if(cop == ESTOPNUMLT){
+      if(cop == COP_ESTOPNUMLT){
         while((kbuf = vlcurkeycache(attridx->db, NULL)) != NULL && cbstrmktime(kbuf) >= num){
           vlcurprev(attridx->db);
         }
@@ -9195,10 +9215,10 @@ static ESTSCORE *est_search_aidx_attr(ESTDB *db, const char *expr, int *nump){
       if(est_match_attr(kbuf, ksiz - sizeof(int) - 1,
                         cop, TRUE, val, vsiz, NULL, 0, regex, num)){
         CB_DATUMCAT(abuf, kbuf + ksiz - sizeof(int), sizeof(int));
-      } else if(cop == ESTOPSTREQ || cop == ESTOPSTRBW || cop == ESTOPNUMEQ){
+      } else if(cop == COP_ESTOPSTREQ || cop == COP_ESTOPSTRBW || cop == COP_ESTOPNUMEQ){
         break;
       }
-      if(cop == ESTOPNUMLT || cop == ESTOPNUMLE){
+      if(cop == COP_ESTOPNUMLT || cop == COP_ESTOPNUMLE){
         vlcurprev(attridx->db);
       } else {
         vlcurnext(attridx->db);
@@ -9421,10 +9441,10 @@ static int est_narrow_scores(ESTDB *db, const CBLIST *attrs, int ign,
         if(i == ign) continue;
         if(!(attridx = (ESTATTRIDX *)cbmapget(db->aidxs, list[i].name, list[i].nsiz, NULL)) ||
            (attridx->type == ESTIDXATTRNUM &&
-            list[i].cop != ESTOPNUMEQ && list[i].cop != ESTOPNUMNE &&
-            list[i].cop != ESTOPNUMGT && list[i].cop != ESTOPNUMGE &&
-            list[i].cop != ESTOPNUMLT && list[i].cop != ESTOPNUMLE &&
-            list[i].cop != ESTOPNUMBT) ||
+            list[i].cop != COP_ESTOPNUMEQ && list[i].cop != COP_ESTOPNUMNE &&
+            list[i].cop != COP_ESTOPNUMGT && list[i].cop != COP_ESTOPNUMGE &&
+            list[i].cop != COP_ESTOPNUMLT && list[i].cop != COP_ESTOPNUMLE &&
+            list[i].cop != COP_ESTOPNUMBT) ||
            (attridx->type != ESTIDXATTRSEQ && snum < ESTAISNUMMIN)){
           done = FALSE;
           continue;
@@ -9448,7 +9468,8 @@ static int est_narrow_scores(ESTDB *db, const CBLIST *attrs, int ign,
                                      done && i == anum - 1 ? limit : INT_MAX, restp);
           break;
         }
-        list[i].cop = ESTOPDUMMY;
+        list[i].cop = COP_ESTOPDUMMY;
+        list[i].sign = TRUE;
       }
       if(mixed && !order) qsort(scores, snum, sizeof(ESTSCORE), est_score_compare_by_score_desc);
     } else {
@@ -9495,6 +9516,7 @@ static int est_narrow_scores(ESTDB *db, const CBLIST *attrs, int ign,
             if(list[j].nsiz < 1) continue;
             if(list[j].nlist){
               hit = FALSE;
+              if(list[j].cop == COP_ESTOPDUMMY) continue;
               for(k = 0; k < CB_LISTNUM(list[j].nlist); k++){
                 lbuf = CB_LISTVAL2(list[j].nlist, k, lsiz);
                 if(lsiz < 1) continue;
@@ -9511,6 +9533,7 @@ static int est_narrow_scores(ESTDB *db, const CBLIST *attrs, int ign,
               vbuf = NULL;
             } else {
               if(mbuf){
+                if(list[j].cop == COP_ESTOPDUMMY && j != oi && j != ci) continue;
                 vbuf = cbmaploadone(mbuf, msiz, list[j].name, list[j].nsiz, &vsiz);
               } else if(csiz != 1 || cbuf[0] != '\0'){
                 vbuf = cbmemdup(cbuf, csiz);
@@ -9778,40 +9801,40 @@ static ESTCATTR *est_make_cattr_list(const CBLIST *attrs, int *nump){
     list[i].regex = NULL;
     list[i].num = cbstrmktime(list[i].val);
     if(!cbstricmp(rp, ESTOPSTREQ)){
-      list[i].cop = ESTOPSTREQ;
+      list[i].cop = COP_ESTOPSTREQ;
     } else if(!cbstricmp(rp, ESTOPSTRNE)){
-      list[i].cop = ESTOPSTRNE;
+      list[i].cop = COP_ESTOPSTRNE;
     } else if(!cbstricmp(rp, ESTOPSTRINC)){
-      list[i].cop = ESTOPSTRINC;
+      list[i].cop = COP_ESTOPSTRINC;
     } else if(!cbstricmp(rp, ESTOPSTRBW)){
-      list[i].cop = ESTOPSTRBW;
+      list[i].cop = COP_ESTOPSTRBW;
     } else if(!cbstricmp(rp, ESTOPSTREW)){
-      list[i].cop = ESTOPSTREW;
+      list[i].cop = COP_ESTOPSTREW;
     } else if(!cbstricmp(rp, ESTOPSTRAND)){
-      list[i].cop = ESTOPSTRAND;
+      list[i].cop = COP_ESTOPSTRAND;
     } else if(!cbstricmp(rp, ESTOPSTROR)){
-      list[i].cop = ESTOPSTROR;
+      list[i].cop = COP_ESTOPSTROR;
     } else if(!cbstricmp(rp, ESTOPSTROREQ)){
-      list[i].cop = ESTOPSTROREQ;
+      list[i].cop = COP_ESTOPSTROREQ;
     } else if(!cbstricmp(rp, ESTOPSTRRX)){
-      list[i].cop = ESTOPSTRRX;
+      list[i].cop = COP_ESTOPSTRRX;
       list[i].regex = list[i].sval ? est_regex_new(list[i].sval) : est_regex_new(list[i].val);
     } else if(!cbstricmp(rp, ESTOPNUMEQ)){
-      list[i].cop = ESTOPNUMEQ;
+      list[i].cop = COP_ESTOPNUMEQ;
     } else if(!cbstricmp(rp, ESTOPNUMNE)){
-      list[i].cop = ESTOPNUMNE;
+      list[i].cop = COP_ESTOPNUMNE;
     } else if(!cbstricmp(rp, ESTOPNUMGT)){
-      list[i].cop = ESTOPNUMGT;
+      list[i].cop = COP_ESTOPNUMGT;
     } else if(!cbstricmp(rp, ESTOPNUMGE)){
-      list[i].cop = ESTOPNUMGE;
+      list[i].cop = COP_ESTOPNUMGE;
     } else if(!cbstricmp(rp, ESTOPNUMLT)){
-      list[i].cop = ESTOPNUMLT;
+      list[i].cop = COP_ESTOPNUMLT;
     } else if(!cbstricmp(rp, ESTOPNUMLE)){
-      list[i].cop = ESTOPNUMLE;
+      list[i].cop = COP_ESTOPNUMLE;
     } else if(!cbstricmp(rp, ESTOPNUMBT)){
-      list[i].cop = ESTOPNUMBT;
+      list[i].cop = COP_ESTOPNUMBT;
     } else {
-      list[i].cop = ESTOPSTRINC;
+      list[i].cop = COP_ESTOPSTRINC;
       list[i].val[0] = '\0';
       list[i].vsiz = 0;
       if(list[i].sval){
@@ -9996,7 +10019,7 @@ static int est_eclipse_scores(ESTDB *db, ESTSCORE *scores, int snum, int num,
 /* Check whether a score matches an attribute condition.
    `tval' specifies the target value;
    `tsiz' specifies the size of the target value
-   `cop' specifies the pointer to the operator.
+   `cop' specifies the enum to the operator.
    `sign' specifies the sign of operation.
    `oval' specifies the operation value.
    `osiz' specifies the size of the operation value
@@ -10005,7 +10028,7 @@ static int est_eclipse_scores(ESTDB *db, ESTSCORE *scores, int snum, int num,
    `regex' specifies the regular expressions.
    `onum' specifies the numeric value.
    The return value is true if it does match, else it is false. */
-static int est_match_attr(const char *tval, int tsiz, const char *cop, int sign,
+static int est_match_attr(const char *tval, int tsiz, int cop, int sign,
                           const char *oval, int osiz, const char *sval, int ssiz,
                           const void *regex, int onum){
   unsigned char *eval;
@@ -10024,39 +10047,39 @@ static int est_match_attr(const char *tval, int tsiz, const char *cop, int sign,
     oval = sval;
     osiz = ssiz;
   }
-  if(cop == ESTOPSTREQ){
+  if(cop == COP_ESTOPSTREQ){
     hit = !strcmp(tval, oval);
-  } else if(cop == ESTOPSTRNE){
+  } else if(cop == COP_ESTOPSTRNE){
     hit = strcmp(tval, oval) != 0;
-  } else if(cop == ESTOPSTRINC){
+  } else if(cop == COP_ESTOPSTRINC){
     hit = strstr(tval, oval) != NULL;
-  } else if(cop == ESTOPSTRBW){
+  } else if(cop == COP_ESTOPSTRBW){
     hit = cbstrfwmatch(tval, oval);
-  } else if(cop == ESTOPSTREW){
+  } else if(cop == COP_ESTOPSTREW){
     hit = cbstrbwmatch(tval, oval);
-  } else if(cop == ESTOPSTRAND){
+  } else if(cop == COP_ESTOPSTRAND){
     hit = est_check_strand(tval, oval);
-  } else if(cop == ESTOPSTROR){
+  } else if(cop == COP_ESTOPSTROR){
     hit = est_check_stror(tval, oval);
-  } else if(cop == ESTOPSTROREQ){
+  } else if(cop == COP_ESTOPSTROREQ){
     hit = est_check_stroreq(tval, oval);
-  } else if(cop == ESTOPSTRRX){
+  } else if(cop == COP_ESTOPSTRRX){
     hit = regex ? est_regex_match(regex, tval) : FALSE;
-  } else if(cop == ESTOPNUMEQ){
+  } else if(cop == COP_ESTOPNUMEQ){
     hit = cbstrmktime(tval) == onum;
-  } else if(cop == ESTOPNUMNE){
+  } else if(cop == COP_ESTOPNUMNE){
     hit = cbstrmktime(tval) != onum;
-  } else if(cop == ESTOPNUMGT){
+  } else if(cop == COP_ESTOPNUMGT){
     hit = cbstrmktime(tval) > onum;
-  } else if(cop == ESTOPNUMGE){
+  } else if(cop == COP_ESTOPNUMGE){
     hit = cbstrmktime(tval) >= onum;
-  } else if(cop == ESTOPNUMLT){
+  } else if(cop == COP_ESTOPNUMLT){
     hit = cbstrmktime(tval) < onum;
-  } else if(cop == ESTOPNUMLE){
+  } else if(cop == COP_ESTOPNUMLE){
     hit = cbstrmktime(tval) <= onum;
-  } else if(cop == ESTOPNUMBT){
+  } else if(cop == COP_ESTOPNUMBT){
     hit = est_check_numbt(tval, oval);
-  } else if(cop == ESTOPDUMMY){
+  } else if(cop == COP_ESTOPDUMMY){
     hit = TRUE;
   } else {
     hit = FALSE;
