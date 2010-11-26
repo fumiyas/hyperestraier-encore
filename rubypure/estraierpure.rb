@@ -53,10 +53,10 @@ module EstraierPure
     # The return value is always `nil'.
     def add_attr(name, value)
       Utility::check_types({ name=>String, value=>String }) if $DEBUG
-      name = name.gsub(/[ \t\r\n\v\f]+/, " ")
-      name = name.strip.squeeze(" ")
-      value = value.gsub(/[ \t\r\n\v\f]+/, " ")
-      value = value.strip.squeeze(" ")
+      name = name.gsub(/[ \t\r\n\v\f]+/, " ").strip
+      if name != '@uri'
+	value = value.gsub(/[\t\r\n\v\f]+/, " ").strip
+      end
       @attrs[name] = value
       nil
     end
@@ -65,8 +65,7 @@ module EstraierPure
     # The return value is always `nil'.
     def add_text(text)
       Utility::check_types({ text=>String }) if $DEBUG
-      text = text.gsub(/[ \t\r\n\v\f]+/, " ")
-      text = text.strip.squeeze(" ")
+      text = text.gsub(/[ \t\r\n\v\f]+/, " ").strip
       @dtexts.push(text) if text.length
       nil
     end
@@ -75,8 +74,7 @@ module EstraierPure
     # The return value is always `nil'.
     def add_hidden_text(text)
       Utility::check_types({ text=>String }) if $DEBUG
-      text = text.gsub(/[ \t\r\n\v\f]+/, " ")
-      text = text.strip.squeeze(" ")
+      text = text.gsub(/[ \t\r\n\v\f]+/, " ").strip
       @htexts.push(text) if text.length
       nil
     end
@@ -204,11 +202,12 @@ module EstraierPure
             end
             next
           end
-          line = line.gsub(/[ \t\r\n\v\f]+/, " ")
-          line = line.strip.squeeze(" ")
           if idx = line.index("=")
-            key = line[0...idx]
+            key = line[0...idx].gsub(/[ \t\r\n\v\f]+/, " ").strip
             value = line[idx+1...line.length]
+	    if key != '@uri'
+	      value = value.gsub(/[\t\r\n\v\f]+/, " ").strip
+	    end
             @attrs[key] = value
           end
         end
@@ -260,8 +259,7 @@ module EstraierPure
     # The return value is always `nil'.
     def set_phrase(phrase)
       Utility::check_types({ phrase=>String }) if $DEBUG
-      phrase = phrase.gsub(/[ \t\r\n\v\f]+/, " ")
-      phrase = phrase.strip.squeeze(" ")
+      phrase = phrase.gsub(/[ \t\r\n\v\f]+/, " ").strip
       @phrase = phrase
       nil
     end
@@ -270,8 +268,7 @@ module EstraierPure
     # The return value is always `nil'.
     def add_attr(expr)
       Utility::check_types({ expr=>String }) if $DEBUG
-      expr = expr.gsub(/[ \t\r\n\v\f]+/, " ")
-      expr = expr.strip.squeeze(" ")
+      expr = expr.gsub(/[\t\r\n\v\f]+/, " ").strip
       @attrs.push(expr)
       nil
     end
@@ -280,8 +277,7 @@ module EstraierPure
     # The return value is always `nil'.
     def set_order(expr)
       Utility::check_types({ expr=>String }) if $DEBUG
-      expr = expr.gsub(/[ \t\r\n\v\f]+/, " ")
-      expr = expr.strip.squeeze(" ")
+      expr = expr.gsub(/[ \t\r\n\v\f]+/, " ").strip
       @order = expr
       nil
     end
@@ -331,8 +327,7 @@ module EstraierPure
     # The return value is always `nil'.
     def set_distinct(name)
       Utility::check_types({ name=>String }) if $DEBUG
-      name = name.gsub(/[ \t\r\n\v\f]+/, " ")
-      name = name.strip.squeeze(" ")
+      name = name.gsub(/[ \t\r\n\v\f]+/, " ").strip
       @distinct = name
       nil
     end

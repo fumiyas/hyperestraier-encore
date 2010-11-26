@@ -519,7 +519,9 @@ void est_doc_add_attr(ESTDOC *doc, const char *name, const char *value){
     for(wp = rbuf; *wp != '\0'; wp++){
       if(*wp > 0 && *wp < ' ') *wp = ' ';
     }
-    cbstrsqzspc(rbuf);
+    if (strcmp(name, ESTDATTRURI)) {
+      cbstrsqzspc(rbuf);
+    }
     if((len = strlen(name)) > 0) cbmapput(doc->attrs, name, len, rbuf, -1, TRUE);
     free(rbuf);
   } else {
