@@ -1920,7 +1920,7 @@ static void *est_url_shuttle_impl(void *targ){
         if(*rp == ' ' || *rp == '\t') rp++;
         if(cbmapget(resheads, name, nsiz, NULL)){
           cbmapputcat(resheads, name, nsiz, ", ", 2);
-          cbmapputcat(resheads, name, nsiz, pv, -1);
+          cbmapputcat(resheads, name, nsiz, rp, -1);
         } else {
           cbmapput(resheads, name, nsiz, rp, -1, TRUE);
         }
