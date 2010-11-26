@@ -1082,9 +1082,9 @@ static int procunittest(const char *rootdir){
     est_doc_add_text(doc, "The savior becomes the victim.");
     if(!est_mtdb_put_doc(node->db, doc, 0)) err = TRUE;
     est_doc_delete(doc);
-    node_set_link(node, "http://hoge.com/node/hoge1", "a", 100);
-    node_set_link(node, "http://hoge.com/node/hoge2", "b", 200);
-    node_set_link(node, "http://hoge.com/node/hoge2", "c", 300);
+    node_set_link(node, "http://example.com/node/hoge1", "a", 100);
+    node_set_link(node, "http://example.com/node/hoge2", "b", 200);
+    node_set_link(node, "http://example.com/node/hoge2", "c", 300);
   }
   cblistclose(list);
   nmgr_out(nmgr, "eagle");
@@ -1098,30 +1098,30 @@ static int procunittest(const char *rootdir){
   rwlock_delete(rwlock);
   resmap = resmap_new();
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/one.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/one.html");
   est_doc_add_text(doc, "This is a pen.");
   resmap_put(resmap, 100, doc, NULL, NULL);
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/two.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/two.html");
   est_doc_add_text(doc, "Love is stranger.");
   resmap_put(resmap, 200, doc, NULL, NULL);
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/001.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/001.html");
   resmap_put(resmap, 1, doc, NULL, cbmemdup("one", -1));
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/006.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/006.html");
   resmap_put(resmap, 6, doc, NULL, cbmemdup("six", -1));
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/003.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/003.html");
   resmap_put(resmap, 3, doc, NULL, cbmemdup("three", -1));
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/004.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/004.html");
   resmap_put(resmap, 4, doc, NULL, cbmemdup("four", -1));
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/002.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/002.html");
   resmap_put(resmap, 2, doc, NULL, cbmemdup("two", -1));
   doc = est_doc_new();
-  est_doc_add_attr(doc, ESTDATTRURI, "http://tako.ika/005.html");
+  est_doc_add_attr(doc, ESTDATTRURI, "http://example.org/005.html");
   resmap_put(resmap, 1, doc, NULL, cbmemdup("five", -1));
   resdocs = resmap_list(resmap, &rnum, NULL, NULL);
   for(i = 0; i < rnum; i++){
@@ -1134,7 +1134,7 @@ static int procunittest(const char *rootdir){
   nres = est_noderes_new();
   for(i = 0; i < 128; i++){
     attrs = cbmapopenex(MINIBNUM);
-    str = cbsprintf("http://big/bigger/biggest/%d", i + 1);
+    str = cbsprintf("http://big.example.jp/bigger/biggest/%d", i + 1);
     if(i % 10 != 0) cbmapput(attrs, ESTDATTRURI, -1, str, -1, FALSE);
     free(str);
     str = cbsprintf("This is %d\n", i + 1);
@@ -1150,7 +1150,7 @@ static int procunittest(const char *rootdir){
   }
   for(i = 0; i < 2048; i++){
     attrs = cbmapopenex(MINIBNUM);
-    str = cbsprintf("http://big/bigger/biggest/%d", i + 1);
+    str = cbsprintf("http://big.example.jp/bigger/biggest/%d", i + 1);
     if(i % 10 != 0) cbmapput(attrs, ESTDATTRURI, -1, str, -1, FALSE);
     free(str);
     str = cbsprintf("This is %d\n", i + 1);
