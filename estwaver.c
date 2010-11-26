@@ -1035,23 +1035,23 @@ static void *geturldoc(void *args){
         kwords_reduce(est_doc_keywords(doc), waver->savekeynum, FALSE);
         if(waver->curnode > 0){
           if(waver_node_put_doc(waver, doc, &code)){
-            log_print(LL_DEBUG, "[%d]: registered: %s", thid, url);
+            log_print(LL_INFO, "[%d]: registered: %s", thid, url);
             waver->curnum++;
           } else {
-            log_print(LL_ERROR, "[%d]: registration failed: %s: %d", thid, url, code);
+            log_print(LL_INFO, "[%d]: registration failed: %s: %d", thid, url, code);
           }
         } else {
           if(est_mtdb_put_doc(waver->index, doc, ESTPDCLEAN)){
-            log_print(LL_DEBUG, "[%d]: registered: %s", thid, url);
+            log_print(LL_INFO, "[%d]: registered: %s", thid, url);
             id = est_doc_id(doc);
             waver->curnum++;
           } else {
-            log_print(LL_ERROR, "[%d]: registration failed: %s: %s",
+            log_print(LL_INFO, "[%d]: registration failed: %s: %s",
                       thid, url, dperrmsg(dpecode));
           }
         }
       } else {
-        log_print(LL_DEBUG, "[%d]: not to be indexed: %s", thid, url);
+        log_print(LL_INFO, "[%d]: not to be indexed: %s", thid, url);
       }
       enqueuelinks(waver, url, links, kwords, myargs->depth, id, myargs->pid, myargs->psim);
       cbmapclose(kwords);
