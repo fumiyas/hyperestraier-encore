@@ -24,7 +24,8 @@
 <h1>P2Pガイド</h1>
 
 <div class="note">Copyright (C) 2004-2007 Mikio Hirabayashi</div>
-<div class="note">Last Update: Tue, 06 Mar 2007 12:05:18 +0900</div>
+<div class="note">Copyright (C) 2010 SATOH Fumiyasu</div>
+<div class="note">Last Update: 2010-11-26</div>
 <div class="navi">[<a href="nguide-en.html" hreflang="en">English</a>/<span class="void">Japanese</span>] [<a href="index.ja.html">HOME</a>]</div>
 
 <hr />
@@ -561,10 +562,11 @@ uismlrtune: 16 1024 4096
 </dl>
 
 <dl>
-<dt><kbd>/node/<var>name</var>/get_doc ? id=<var>num</var> &amp; uri=<var>str</var></kbd></dt>
+<dt><kbd>/node/<var>name</var>/get_doc ? id=<var>num</var> &amp; uri=<var>str</var> &amp; options=<var>num</var></kbd></dt>
 <dd>文書の情報を取得します。</dd>
 <dd><var>id</var>は対象文書のID番号を指定します。省略可能です。</dd>
 <dd><var>uri</var>は対象文書のURIを指定します。省略可能です。</dd>
+<dd><var>options</var>は文書情報のオプションを指定します。省略可能です。値はコアAPIのものと同じです。</dd>
 <dd>成功すれば200のステータスコードとともに文書ドラフト形式のデータが返信されます。</dd>
 </dl>
 
