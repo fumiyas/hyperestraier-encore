@@ -276,7 +276,7 @@ static int sendnodecmdsearchhelper(int clsock, REQUEST *req, NODE *node, const c
 static void sendnodecmdlist(int clsock, REQUEST *req, NODE *node);
 static void sendnodecmdgetdoc(int clsock, REQUEST *req, NODE *node);
 static int sendnodecmdgetdochelper(int clsock, REQUEST *req, NODE *node,
-                                   int id, const char *uri);
+                                   int id, const char *uri, int options);
 static void sendnodecmdgetdocattr(int clsock, REQUEST *req, NODE *node);
 static int sendnodecmdgetdocattrhelper(int clsock, REQUEST *req, NODE *node,
                                        int id, const char *uri, const char *attr);
@@ -3482,17 +3482,18 @@ static void sendnodecmdgetdoc(int clsock, REQUEST *req, NODE *node){
   CBDATUM *datum;
   const char *tmp, *uri;
   char *draft, *zbuf;
-  int id, zsiz;
+  int id, zsiz, options;
   id = (tmp = cbmapget(req->params, "id", -1, NULL)) ? atoi(tmp) : 0;
   if(!(uri = cbmapget(req->params, "uri", -1, NULL))) uri = "";
+  options = (tmp = cbmapget(req->params, "options", -1, NULL)) ? atoi(tmp) : 0;
   if(id < 1 && uri[0] == '\0'){
     senderror(clsock, req, 400, "Bad Request (the parameters lack)");
     return;
   }
   if(est_mtdb_cache_usage(node->db) >= g_helpershift &&
-     sendnodecmdgetdochelper(clsock, req, node, id, uri)) return;
+     sendnodecmdgetdochelper(clsock, req, node, id, uri, options)) return;
   if(id < 1) id = est_mtdb_uri_to_id(node->db, uri);
-  if(id > 0 && (doc = est_mtdb_get_doc(node->db, id, 0)) != NULL){
+  if(id > 0 && (doc = est_mtdb_get_doc(node->db, id, options)) != NULL){
     setdocorigin(doc, req, node, -1);
     draft = est_doc_dump_draft(doc);
     datum = cbdatumopen(NULL, -1);
@@ -3535,7 +3536,7 @@ static void sendnodecmdgetdoc(int clsock, REQUEST *req, NODE *node){
 
 /* send the result of the get_doc helper command */
 static int sendnodecmdgetdochelper(int clsock, REQUEST *req, NODE *node,
-                                   int id, const char *uri){
+                                   int id, const char *uri, int options){
   ESTDOC *doc;
   CBDATUM *datum;
   char *dbuf, *ebuf, dbpath[URIBUFSIZ], opath[URIBUFSIZ], *draft;
@@ -3553,6 +3554,9 @@ static int sendnodecmdgetdochelper(int clsock, REQUEST *req, NODE *node,
   ebuf = cbbaseencode(uri, -1);
   cbdatumprintf(datum, " \"%s\"", ebuf);
   free(ebuf);
+  if (options != 0) {
+    cbdatumprintf(datum, " \"%d\"", options);
+  }
   log_print(LL_DEBUG, "[%s:%d]: calling the get_doc helper: %s",
             req->claddr, req->clport, cbdatumptr(datum));
   for(i = 0; i < HELPERTRYNUM; i++){

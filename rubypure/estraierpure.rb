@@ -506,6 +506,12 @@ module EstraierPure
     # public methods
     #--------------------------------
     public
+    # get_doc option: no attributes
+    GET_DOC_NOATTR = 1 << 0
+    # get_doc option: no text
+    GET_DOC_NOTEXT = 1 << 1
+    # get_doc option: no keywords
+    GET_DOC_NOKWD = 1 << 2
     # Set the URL of a node server.
     # `url' specifies the URL of a node.
     # The return value is always `nil'.
@@ -633,7 +639,7 @@ module EstraierPure
     # Retrieve a document.
     # `id' specifies the ID number of a registered document.
     # The return value is a document object.  On error, `nil' is returned.
-    def get_doc(id)
+    def get_doc(id, options=nil)
       Utility::check_types({ id=>Integer }) if $DEBUG
       @status = -1
       return nil unless @url
@@ -641,6 +647,7 @@ module EstraierPure
       reqheads = [ "Content-Type: application/x-www-form-urlencoded" ]
       reqheads.push("Authorization: Basic " + Utility::base_encode(@auth)) if @auth
       reqbody = "id=" + id.to_s
+      reqbody += "&options=" + options.to_s if options
       resbody = StringIO::new
       rv = Utility::shuttle_url(turl, @pxhost, @pxport, @timeout, reqheads, reqbody, nil, resbody)
       @status = rv
@@ -650,7 +657,7 @@ module EstraierPure
     # Retrieve a document.
     # `uri' specifies the URI of a registered document.
     # The return value is a document object.  On error, `nil' is returned.
-    def get_doc_by_uri(uri)
+    def get_doc_by_uri(uri, options=nil)
       Utility::check_types({ uri=>String }) if $DEBUG
       @status = -1
       return nil unless @url
@@ -658,6 +665,7 @@ module EstraierPure
       reqheads = [ "Content-Type: application/x-www-form-urlencoded" ]
       reqheads.push("Authorization: Basic " + Utility::base_encode(@auth)) if @auth
       reqbody = "uri=" + CGI::escape(uri)
+      reqbody += "&options=" + options.to_s if options
       resbody = StringIO::new
       rv = Utility::shuttle_url(turl, @pxhost, @pxport, @timeout, reqheads, reqbody, nil, resbody)
       @status = rv

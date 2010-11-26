@@ -35,7 +35,7 @@ static int procsearch(const char *dbname, CBMAP *params, const char *outfile,
                       const char *myurl, const char *mylabel, int rateuri, int mergemethod,
                       int scoreexpr, int searchmax, int wildmax,
                       int wwidth, int hwidth, int awidth, int scancheck, int smlrvnum);
-static int procgetdoc(const char *dbname, const char *outfile, int id, const char *uri);
+static int procgetdoc(const char *dbname, const char *outfile, int id, const char *uri, int options);
 static int procgetdocattr(const char *dbname, const char *outfile,
                           int id, const char *uri, const char *attr);
 static int procetchdoc(const char *dbname, const char *outfile,
@@ -138,13 +138,14 @@ static int runsearch(int argc, char **argv){
 static int rungetdoc(int argc, char **argv){
   const char *dbname, *outfile;
   char *uri;
-  int id, rv;
+  int id, rv, options;
   if(argc < 6) usage();
   dbname = argv[2];
   outfile = argv[3];
   id = atoi(argv[4]);
   uri = cbbasedecode(argv[5], NULL);
-  rv = procgetdoc(dbname, outfile, id, uri);
+  options = (argc > 6) ? atoi(argv[6]) : 0;
+  rv = procgetdoc(dbname, outfile, id, uri, options);
   free(uri);
   return rv;
 }
@@ -438,7 +439,7 @@ static int procsearch(const char *dbname, CBMAP *params, const char *outfile,
 
 
 /* perform the getdoc command */
-static int procgetdoc(const char *dbname, const char *outfile, int id, const char *uri){
+static int procgetdoc(const char *dbname, const char *outfile, int id, const char *uri, int options){
   ESTDB *db;
   ESTDOC *doc;
   char *draft;
@@ -446,7 +447,7 @@ static int procgetdoc(const char *dbname, const char *outfile, int id, const cha
   if(!(db = est_db_open(dbname, ESTDBREADER | ESTDBNOLCK, &ecode))) return 1;
   err = FALSE;
   if(id < 1) id = est_db_uri_to_id(db, uri);
-  if(id > 0 && (doc = est_db_get_doc(db, id, 0)) != NULL){
+  if(id > 0 && (doc = est_db_get_doc(db, id, options)) != NULL){
     draft = est_doc_dump_draft(doc);
     est_doc_delete(doc);
   } else {

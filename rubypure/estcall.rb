@@ -690,7 +690,7 @@ def procget(nurl, expr, attr)
   node.set_timeout($timeout) if $timeout > 0
   node.set_auth($authname, $authpass) if $authname
   id = expr.to_i
-  if attr
+  if attr && attr !~ /^\d+$/
     value = id > 0 ? node.get_doc_attr(id, attr) : node.get_doc_attr_by_uri(expr, attr)
     if !value
       printerror("failed: " + node.status.to_s)
@@ -698,7 +698,8 @@ def procget(nurl, expr, attr)
     end
     printf("%s\n", value)
   else
-    doc = id > 0 ? node.get_doc(id) : node.get_doc_by_uri(expr)
+    options = attr ? attr.to_i : nil
+    doc = id > 0 ? node.get_doc(id, options) : node.get_doc_by_uri(expr, options)
     if !doc
       printerror("failed: " + node.status.to_s)
       return 1
