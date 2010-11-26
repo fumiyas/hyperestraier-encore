@@ -50,6 +50,8 @@ def main(args)
   usage if args.length < 1
   rv = 0
   case args[0]
+  when "list"
+    rv = runlist(args)
   when "put"
     rv = runput(args)
   when "out"
@@ -113,6 +115,40 @@ end
 def printerror(msg)
   STDERR.printf("%s: ERROR: %s\n", $0, msg)
   STDERR.flush
+end
+
+
+# parse arguments of the list command
+def runlist(args)
+  nurl = nil
+  i = 1
+  while i < args.length
+    if !nurl && args[i] =~ /^-/
+      if args[i] == "-proxy"
+        usage if (i += 1) >= args.length
+        $pxhost = args[i]
+        usage if (i += 1) >= args.length
+        $pxport = args[i].to_i
+      elsif args[i] == "-tout"
+        usage if (i += 1) >= args.length
+        $timeout = args[i].to_i
+      elsif args[i] == "-auth"
+        usage if (i += 1) >= args.length
+        $authname = args[i]
+        usage if (i += 1) >= args.length
+        $authpass = args[i]
+      else
+        usage
+      end
+    elsif !nurl
+      nurl = args[i]
+    else
+      usage
+    end
+    i += 1
+  end
+  usage if !nurl
+  proclist(nurl)
 end
 
 
@@ -607,6 +643,43 @@ def runsetlink(args)
   end
   usage if !nurl || !url || !label || !credit
   procsetlink(nurl, url, label, credit)
+end
+
+
+# perform the list command
+def proclist(nurl)
+  node = Node::new
+  node.set_url(nurl)
+  node.set_proxy($pxhost, $pxport) if $pxhost
+  node.set_timeout($timeout) if $timeout > 0
+  node.set_auth($authname, $authpass) if $authname
+  prev = ''
+  loop do
+    docs = node.list(1000, prev)
+    if !docs
+      printerror("failed: " + node.status.to_s)
+      return 1
+    end
+    break if docs.size == 0
+    docs.each do |doc|
+      print doc.attr('@id') || '', "\t"
+      print doc.attr('@uri') || '', "\t"
+      print doc.attr('@digest') || '', "\t"
+      print doc.attr('@cdate') || '', "\t"
+      print doc.attr('@mdate') || '', "\t"
+      print doc.attr('@adate') || '', "\t"
+      print doc.attr('@title') || '', "\t"
+      print doc.attr('@author') || '', "\t"
+      print doc.attr('@type') || '', "\t"
+      print doc.attr('@lang') || '', "\t"
+      print doc.attr('@genre') || '', "\t"
+      print doc.attr('@size') || '', "\t"
+      print doc.attr('@weight') || '', "\t"
+      print doc.attr('@misc') || '', "\n"
+    end
+    prev = docs.last.attr('@uri')
+  end
+  return 0
 end
 
 

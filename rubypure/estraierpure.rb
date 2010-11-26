@@ -576,6 +576,54 @@ module EstraierPure
       @status = rv
       rv == 200
     end
+    # List all document in the database
+    # The return value is an array of document objects if success, else it is nil.
+    def list(max, prev = nil)
+      @status = -1
+      return nil unless @url
+      turl = @url + "/list"
+      reqheads = [ "Content-Type: application/x-www-form-urlencoded" ]
+      reqheads.push("Authorization: Basic " + Utility::base_encode(@auth)) if @auth
+      reqbody = "max=" + CGI.escape(max.to_s)
+      reqbody += "&prev=" + CGI.escape(prev) if prev
+      resbody = StringIO::new
+      rv = Utility::shuttle_url(turl, @pxhost, @pxport, @timeout, reqheads, reqbody, nil, resbody)
+      @status = rv
+      return nil if rv != 200
+      docs = resbody.string.scan(/.*?\n/).map do |attrs_line|
+	attr_names = %w(
+	  @id
+	  @uri
+	  @digest
+	  @cdate
+	  @mdate
+	  @adate
+	  @title
+	  @author
+	  @type
+	  @lang
+	  @genre
+	  @size
+	  @weight
+	  @misc
+	)
+	attr_values = attrs_line.chomp.split(/\t/, -1)
+	## Step 1:
+	##   [['@foo', '@bar'], [123, 456]].transpose =>
+	##   [['@foo', 123], ['@bar', 456]].flatten =>
+	##   ['@foo', 123, '@bar', 456]
+	## Step 2:
+	##   Hash[*['@foo', 123, '@bar', 456]] =>
+	##   {'@foo' => 123, '@bar' => 456}
+	attrs = Hash[*[attr_names, attr_values].transpose.flatten]
+	attrs.reject! do |name, value|
+	  value == ''
+	end
+	ResultDocument::new(attrs['@uri'], attrs, '', '')
+      end
+
+      return docs
+    end
     # Add a document.
     # `doc' specifies a document object.  The document object should have the URI attribute.
     # The return value is true if success, else it is false.
