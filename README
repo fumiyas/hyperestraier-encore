@@ -1,8 +1,16 @@
-================================================================
- Hyper Estraier: a full-text search system for communities
- Copyright (C) 2004-2005 Mikio Hirabayashi
-================================================================
+Hyper Estraier Encore: a full-text search system
+Copyright (C) 2010 SATOH Fumiyasu @ OSS Technology, Inc.
+======================================================================
 
+This is derived from Hyper Estraier 1.4.13 by Mikio Hirabayashi.
+(http://fallabs.com/hyperestraier/)
+
+The original copyright notice is below:
+
+  Hyper Estraier: a full-text search system for communities
+  Copyright (C) 2004-2005 Mikio Hirabayashi
+
+======================================================================
 
 Please read the following documents with a WWW browser.
 How to install QDBM is explained in the specification.
@@ -16,7 +24,7 @@ How to install QDBM is explained in the specification.
 
 Contents of the directory tree is below.
 
-  ./             - sources of Hyper Estraier
+  ./             - sources of Hyper Estraier Encore
   ./locale/      - locale files
   ./filter/      - filter scripts
   ./increm/      - files for incremental search
@@ -33,11 +41,8 @@ Contents of the directory tree is below.
   ./misc/        - miscellaneous files
 
 
-Hyper Estraier is released under the terms of the GNU Lesser General
-Public License.  See the file `COPYING' for details.
-
-Hyper Estraier was written by Mikio Hirabayashi.  You can contact the
-author by e-mail to `mikio@fallabs.com'.
+Hyper Estraier Encore is released under the terms of the GNU Lesser
+General Public License Version 2.1. See the file `COPYING' for details.
 
 
 Thanks.
