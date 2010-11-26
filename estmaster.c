@@ -491,6 +491,8 @@ static int runstart(int argc, char **argv){
         g_romode = TRUE;
       } else if(!strcmp(argv[i], "-st")){
         g_stmode = TRUE;
+      } else if(!strcmp(argv[i], "--no-log-timestamp")){
+	log_timestamp = FALSE;
       } else {
         usage();
       }
@@ -1993,9 +1995,23 @@ static void sendmasterdata(int clsock, REQUEST *req, USER *user){
       cbdatumprintf(datum, "OK\n");
       est_sock_send_all(clsock, cbdatumptr(datum), cbdatumsize(datum));
       cbdatumclose(datum);
-      log_print(LL_DEBUG, "[%s:%d]: 200 OK (nodeclr)", req->claddr, req->clport);
+      log_print(LL_DEBUG, "[%s:%d]: 200 OK (logrtt)", req->claddr, req->clport);
     } else {
       senderror(clsock, req, 500, "Internal Server Error (log rotation failed)");
+    }
+  } else if(!strcmp(act, "logreopen")){
+    if(log_open(g_rootdir, g_logfile, g_loglevel, FALSE)){
+      datum = cbdatumopen(NULL, -1);
+      cbdatumprintf(datum, "HTTP/1.0 200 OK\r\n");
+      addservinfo(datum, req->now, 0);
+      cbdatumprintf(datum, "Content-Type: text/plain; charset=UTF-8\r\n");
+      cbdatumprintf(datum, "\r\n");
+      cbdatumprintf(datum, "OK\n");
+      est_sock_send_all(clsock, cbdatumptr(datum), cbdatumsize(datum));
+      cbdatumclose(datum);
+      log_print(LL_DEBUG, "[%s:%d]: 200 OK (logreopen)", req->claddr, req->clport);
+    } else {
+      senderror(clsock, req, 500, "Internal Server Error (log reopen failed)");
     }
   } else {
     senderror(clsock, req, 400, "Bad Request (the action is invalid or lack of parameters)");

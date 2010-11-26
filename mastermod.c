@@ -37,16 +37,36 @@ static int resdoc_compare_by_num_desc(const void *ap, const void *bp);
 FILE *log_fp = NULL;
 
 
+/* Include timestamp in log */
+int log_timestamp = TRUE;
+
+
 /* Level of logging. */
 int log_level = LL_INFO;
 
 
+/* Mutex for log tasks */
+static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
 /* Open the log file. */
 int log_open(const char *rootdir, const char *path, int level, int trunc){
+  int err = FALSE;
   char mypath[URIBUFSIZ];
+  int log_fd;
+  int log_flags = O_WRONLY|O_APPEND|O_CREAT|(trunc ? O_TRUNC : 0);
   assert(rootdir && path);
+  if(pthread_mutex_lock(&log_mutex) != 0) return FALSE;
   log_level = level;
-  if(log_fp) return TRUE;
+  if(log_fp){
+    fclose(log_fp);
+    log_fp = NULL;
+  }
+#if defined(_WIN32)
+  if(!strcmp(path, "nul")) goto done;
+#else
+  if(!strcmp(path, "/dev/null")) goto done;
+#endif
   if((ESTPATHCHR == '/' && path[0] == ESTPATHCHR) ||
      (ESTPATHCHR == '\\' && ((path[0] >= 'A' && path[0] <= 'Z') ||
                              (path[0] >= 'a' && path[0] <= 'z')) && path[1] == ':' &&
@@ -55,25 +75,35 @@ int log_open(const char *rootdir, const char *path, int level, int trunc){
   } else {
     sprintf(mypath, "%s%c%s", rootdir, ESTPATHCHR, path);
   }
-  if(!(log_fp = fopen(mypath, trunc ? "wb" : "ab"))) return FALSE;
-  if(level == LL_CHECK){
-    fclose(log_fp);
-    log_fp = NULL;
-    return TRUE;
+  if((log_fd = open(mypath, log_flags, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH)) == -1) {
+    err = TRUE;
+    goto done;
   }
+  if(level == LL_CHECK){
+    close(log_fd);
+    goto done;
+  }
+  if(!(log_fp = fdopen(log_fd, "ab"))) {
+    close(log_fd);
+    err = TRUE;
+    goto done;
+  }
+
   atexit(log_close);
-  return TRUE;
+
+done:
+  pthread_mutex_unlock(&log_mutex);
+  return err ? FALSE : TRUE;
 }
 
 
 /* Print formatted string into the log file. */
 void log_print(int level, const char *format, ...){
-  static pthread_mutex_t mymutex = PTHREAD_MUTEX_INITIALIZER;
   va_list ap, aq;
   const char *lvstr;
   char *date;
   if(level < log_level) return;
-  if(pthread_mutex_lock(&mymutex) != 0) return;
+  if(pthread_mutex_lock(&log_mutex) != 0) return;
   va_start(ap, format);
   est_va_copy(aq, ap);
   switch(level){
@@ -82,55 +112,64 @@ void log_print(int level, const char *format, ...){
   case LL_WARN: lvstr = "WARN"; break;
   default: lvstr = "ERROR"; break;
   }
-  date = cbdatestrwww(time(NULL), 0);
-  printf("%s\t%s\t", date, lvstr);
+  if (log_timestamp) {
+    date = cbdatestrwww(time(NULL), 0);
+    printf("%s\t", date);
+  }
+  printf("%s\t", lvstr);
   vprintf(format, ap);
   putchar('\n');
   fflush(stdout);
   if(log_fp){
-    fprintf(log_fp, "%s\t%s\t", date, lvstr);
+    if (log_timestamp) {
+      fprintf(log_fp, "%s\t", date);
+    }
+    fprintf(log_fp, "%s\t", lvstr);
     vfprintf(log_fp, format, aq);
     fputc('\n', log_fp);
     fflush(log_fp);
   }
-  free(date);
+  if (log_timestamp) {
+    free(date);
+  }
   va_end(aq);
   va_end(ap);
-  pthread_mutex_unlock(&mymutex);
+  pthread_mutex_unlock(&log_mutex);
 }
 
 
 /* Rotete the log file. */
 int log_rotate(const char *rootdir, const char *path){
-  FILE *ifp, *ofp;
-  char mypath[URIBUFSIZ], *wp, iobuf[IOBUFSIZ];
-  int err, year, month, day, hour, minute, second, len;
+  char mypath[URIBUFSIZ], mypath2[URIBUFSIZ];
+  int err = FALSE, year, month, day, hour, minute, second;
+  struct stat st;
   assert(rootdir && path);
-  if(!log_fp || fflush(log_fp) == -1) return FALSE;
-  err = FALSE;
-  wp = mypath;
+  if(pthread_mutex_lock(&log_mutex) != 0) return FALSE;
+  if(!log_fp) goto done;
   if((ESTPATHCHR == '/' && path[0] == ESTPATHCHR) ||
      (ESTPATHCHR == '\\' && ((path[0] >= 'A' && path[0] <= 'Z') ||
                              (path[0] >= 'a' && path[0] <= 'z')) && path[1] == ':' &&
       path[2] == '\\')){
-    wp += sprintf(wp, "%s", path);
+    sprintf(mypath, "%s", path);
   } else {
-    wp += sprintf(wp, "%s%c%s", rootdir, ESTPATHCHR, path);
+    sprintf(mypath, "%s%c%s", rootdir, ESTPATHCHR, path);
   }
-  if(!(ifp = fopen(mypath, "rb"))) return FALSE;
   cbcalendar(-1, 0, &year, &month, &day, &hour, &minute, &second);
-  sprintf(wp, "-%04d%02d%02d%02d%02d%02d", year, month, day, hour, minute, second);
-  if(!(ofp = fopen(mypath, "wb"))){
-    fclose(ifp);
-    return FALSE;
+  sprintf(mypath2, "%s-%04d%02d%02d%02d%02d%02d", mypath, year, month, day, hour, minute, second);
+  if(stat(mypath2, &st) == 0) {
+    err = TRUE;
+    goto done;
   }
-  while((len = fread(iobuf, 1, IOBUFSIZ, ifp)) > 0){
-    fwrite(iobuf, 1, len, ofp);
+  if(rename(mypath, mypath2) == -1) {
+    err = TRUE;
+    goto done;
   }
-  if(fclose(ofp) == -1) err = TRUE;
-  if(fclose(ifp) == -1) err = TRUE;
-  if(fseek(log_fp, 0, SEEK_SET) == -1 || fflush(log_fp) == -1) err = TRUE;
-  if(ftruncate(fileno(log_fp), 0) == -1) err = TRUE;
+
+done:
+  pthread_mutex_unlock(&log_mutex);
+
+  if (!err && log_fp) if (!log_open(rootdir, path, log_level, FALSE)) err = TRUE;
+
   return err ? FALSE : TRUE;
 }
 

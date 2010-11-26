@@ -181,6 +181,10 @@ typedef struct {                         /* type of structure for documents in r
 extern FILE *log_fp;
 
 
+/* Include timestamp in log */
+extern int log_timestamp;
+
+
 /* The level of logging. */
 extern int log_level;
 
