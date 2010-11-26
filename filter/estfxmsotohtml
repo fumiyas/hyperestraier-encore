@@ -61,7 +61,7 @@ case "$infile" in
   wvWare --charset=UTF-8 --nographics "$infile" 2> "/dev/null" | output
   ;;
 *.xls)
-  xlhtml "$infile" 2> "/dev/null" | output
+  xlhtml -a -te -nc -fw "$infile" 2> "/dev/null" | output
   ;;
 *.ppt)
   ppthtml "$infile" 2> "/dev/null" | output
