@@ -179,7 +179,7 @@ static int procrepair(const char *dbname);
 static int procsearch(const char *dbname, const CBLIST *pidxs,
                       const char *phrase, const CBLIST *attrs,
                       const char *ord, int max, int sk, int aux, double ec,
-                      int opts, int cd, int sim, const char *dis);
+                      int opts, int cd, int sim, const char *dis, int wildmax);
 static int procgather(const char *dbname, const char *filename);
 static int procpurge(const char *dbname, const char *prefix, const CBLIST *attrs);
 static int procextkeys(const char *dbname, const char *prefix, const CBLIST *attrs,
@@ -829,12 +829,14 @@ static int runsearch(int argc, char **argv){
   CBLIST *pidxs, *attrs;
   char *dbname, *ord, *dis, *phrase, *tmp;
   int i, max, sk, aux, opts, cd, sim, rv;
+  int wildmax;
   double ec;
   g_kwordnum = -1;
   dbname = NULL;
   ord = NULL;
   dis = NULL;
   max = SEARCHMAX;
+  wildmax = 256;
   sk = 0;
   aux = SEARCHAUX;
   ec = -1.0;
@@ -938,6 +940,9 @@ static int runsearch(int argc, char **argv){
       } else if(!strcmp(argv[i], "-sim")){
         if(++i >= argc) usage();
         sim = atoi(argv[i]);
+      } else if(!strcmp(argv[i], "-wmax")){
+        if(++i >= argc) usage();
+        wildmax = atoi(argv[i]);
       } else {
         usage();
       }
@@ -960,7 +965,7 @@ static int runsearch(int argc, char **argv){
       free(tmp);
     }
   }
-  rv = procsearch(dbname, pidxs, phrase, attrs, ord, max, sk, aux, ec, opts, cd, sim, dis);
+  rv = procsearch(dbname, pidxs, phrase, attrs, ord, max, sk, aux, ec, opts, cd, sim, dis, wildmax);
   free(phrase);
   return rv;
 }
@@ -1993,7 +1998,7 @@ static int procrepair(const char *dbname){
 static int procsearch(const char *dbname, const CBLIST *pidxs,
                       const char *phrase, const CBLIST *attrs,
                       const char *ord, int max, int sk, int aux, double ec,
-                      int opts, int cd, int sim, const char *dis){
+                      int opts, int cd, int sim, const char *dis, int wildmax){
   ESTDB *db;
   ESTCOND *cond;
   ESTDOC *doc, *tdoc;
@@ -2010,6 +2015,7 @@ static int procsearch(const char *dbname, const CBLIST *pidxs,
     printferror("%s: %s", dbname, est_err_msg(ecode));
     return 1;
   }
+  est_db_set_wildmax(db, wildmax);
   for(i = 0; i < cblistnum(pidxs); i++){
     est_db_add_pseudo_index(db, cblistval(pidxs, i, NULL));
   }

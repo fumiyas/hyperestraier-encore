@@ -9,14 +9,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta name="author" content="Mikio Hirabayashi" />
-<meta name="keywords" content="Hyper Estraier, Estraier, full-text search, API" />
-<meta name="description" content="User's Guide of Hyper Estraier" />
+<meta name="keywords" content="Hyper Estraier Encore, Estraier, full-text search, API" />
+<meta name="description" content="User's Guide of Hyper Estraier Encore" />
 <link rel="contents" href="./" />
 <link rel="alternate" href="uguide-en.html" hreflang="en" title="the English version" />
 <link rel="stylesheet" href="common.css" />
 <link rel="icon" href="icon16.png" />
 <link rev="made" href="mailto:mikio@fallabs.com" />
-<title>User's Guide of Hyper Estraier Version 1 (Japanese)</title>
+<link rev="made" href="mailto:fumiyas@osstech.co.jp" />
+<title>User's Guide of Hyper Estraier Encore Version 1 (Japanese)</title>
 </head>
 
 <body>
@@ -24,7 +25,8 @@
 <h1>ユーザガイド</h1>
 
 <div class="note">Copyright (C) 2004-2007 Mikio Hirabayashi</div>
-<div class="note">Last Update: Tue, 06 Mar 2007 12:05:18 +0900</div>
+<div class="note">Copyright (C) 2010 SATOH Fumiyasu</div>
+<div class="note">Last Update: 2010-11-26</div>
 <div class="navi">[<a href="uguide-en.html" hreflang="en">English</a>/<span class="void">Japanese</span>] [<a href="index.ja.html">HOME</a>]</div>
 
 <hr />
@@ -49,23 +51,23 @@
 
 <h2 id="introduction">はじめに</h2>
 
-<p>このガイドでは、Hyper Estraierのアプリケーションの詳細な使い方を説明します。<a href="intro-ja.html">イントロダクション</a>をまだお読みでない場合は、先にそちらに目を通しておいてください。</p>
+<p>このガイドでは、Hyper Estraier Encoreのアプリケーションの詳細な使い方を説明します。<a href="intro-ja.html">イントロダクション</a>をまだお読みでない場合は、先にそちらに目を通しておいてください。</p>
 
-<p>Hyper Estraierは、いわゆるインデックス型の検索システムです。検索を行う前に、対象文書の情報を登録した<strong>インデックス</strong>を準備しておく必要があります。その手間がかかるかわりに、とても高速に検索を行うことができます。Hyper Estraierはインデックスを管理するコマンド「<code>estcmd</code>」とインデックスを使って検索を行うCGIスクリプト「<code>estseek.cgi</code>」からなります。つまり、コマンドラインでインデックスの管理作業を行い、Webブラウザで検索を行うことになります。</p>
+<p>Hyper Estraier Encoreは、いわゆるインデックス型の検索システムです。検索を行う前に、対象文書の情報を登録した<strong>インデックス</strong>を準備しておく必要があります。その手間がかかるかわりに、とても高速に検索を行うことができます。Hyper Estraier Encoreはインデックスを管理するコマンド「<code>estcmd</code>」とインデックスを使って検索を行うCGIスクリプト「<code>estseek.cgi</code>」からなります。つまり、コマンドラインでインデックスの管理作業を行い、Webブラウザで検索を行うことになります。</p>
 
 <p><code>estcmd</code>は様々な形式の文書を扱うことができ、またインデックスに対する多様な管理操作を行うことができます。このガイドでは、文書の扱われ方やインデックスの管理方法について詳細に説明します。</p>
 
-<p>Hyper Estraierは様々な検索方法をサポートします。複数の検索語を組み合わせたり、文書の属性を使って検索したりすることができます。また、<code>estseek.cgi</code>の設定により、表示方法をカスタマイズすることができます。このガイドではそれらの方法についても説明します。</p>
+<p>Hyper Estraier Encoreは様々な検索方法をサポートします。複数の検索語を組み合わせたり、文書の属性を使って検索したりすることができます。また、<code>estseek.cgi</code>の設定により、表示方法をカスタマイズすることができます。このガイドではそれらの方法についても説明します。</p>
 
 <hr />
 
 <h2 id="attributes">文書の属性</h2>
 
-<p>Hyper Estraierが扱う文書には、本文の情報だけでなく、タイトルなどの属性情報をつけることができます。属性は様々な応用ができます。属性を使った検索もできますし、更新日時の属性は差分更新の判断にも使われます。</p>
+<p>Hyper Estraier Encoreが扱う文書には、本文の情報だけでなく、タイトルなどの属性情報をつけることができます。属性は様々な応用ができます。属性を使った検索もできますし、更新日時の属性は差分更新の判断にも使われます。</p>
 
 <h3>属性名</h3>
 
-<p>属性には名前がつけられます。属性名は自由につけることができるのですが、Hyper Estraierが標準的に使う属性は<strong>システム属性</strong>として予め定義されています。システム属性の名前には「<code>@</code>」が先頭につきます。システム属性は以下のものがあります。</p>
+<p>属性には名前がつけられます。属性名は自由につけることができるのですが、Hyper Estraier Encoreが標準的に使う属性は<strong>システム属性</strong>として予め定義されています。システム属性の名前には「<code>@</code>」が先頭につきます。システム属性は以下のものがあります。</p>
 
 <ul>
 <li><kbd>@id</kbd> : 文書をインデックスに登録した際に自動的に振られます。</li>
@@ -179,7 +181,7 @@
 
 <h3>文書ドラフト</h3>
 
-<p><strong>文書ドラフト</strong>は、Hyper Estraier独自のデータ形式です。文書ドラフトを中間フォーマットとして使うことで、様々な形式の文書を統合的に扱うことができます。デフォルトでは、ファイル名の接尾辞が「<code>.est</code>」の場合に文書ドラフトとして扱われます。</p>
+<p><strong>文書ドラフト</strong>は、Hyper Estraier Encore独自のデータ形式です。文書ドラフトを中間フォーマットとして使うことで、様々な形式の文書を統合的に扱うことができます。デフォルトでは、ファイル名の接尾辞が「<code>.est</code>」の場合に文書ドラフトとして扱われます。</p>
 
 <p>文書ドラフトの形式はRFC822に似ていますが、細かい違いがあります。ヘッダの区切り文字は「<code>:</code>」でなく「<code>=</code>」です。また、「<code>=</code>」の後に空白を置く必要はありません。例えば、MIDIの歌詞データを登録する際には、以下のようなデータになるでしょう。</p>
 
@@ -235,7 +237,7 @@ category=chorus,j-pop
 
 <p>「<code>OR</code>」は「<code>AND</code>」や「<code>ANDNOT</code>」よりも優先順位が高いことに注意してください。例えば、「<code>F1 OR F-1 OR Formula One AND 優勝 OR チャンピオン</code>」と入力した場合、「<code>F1</code>」か「<code>F-1</code>」か「<code>Formula One</code>」のどれかを含んで、かつ「<code>優勝</code>」か「<code>チャンピオン</code>」のどちらかを含む文書を探します。</p>
 
-<p>Hyper Estraierは、日本語だけでなく、英語、ドイツ語、フランス語、中国語など、大抵の言語を扱うことができます。英字の大文字と小文字の違いは無視されます。「<code>Japan</code>」「<code>japan</code>」「<code>JAPAN</code>」「<code>jaPaN</code>」は全て同じです。ダイアクリティカルマーク付きのラテン文字や、ギリシア文字、キリル文字でも同様です。</p>
+<p>Hyper Estraier Encoreは、日本語だけでなく、英語、ドイツ語、フランス語、中国語など、大抵の言語を扱うことができます。英字の大文字と小文字の違いは無視されます。「<code>Japan</code>」「<code>japan</code>」「<code>JAPAN</code>」「<code>jaPaN</code>」は全て同じです。ダイアクリティカルマーク付きのラテン文字や、ギリシア文字、キリル文字でも同様です。</p>
 
 <p>「<kbd>AND</kbd>」「<kbd>ANDNOT</kbd>」「<kbd>OR</kbd>」は演算子ですので、大文字で書かなければなりません。また、前後に空白が必要です。「<code>AND</code>」という文字列を含む文書を探したい場合は、「<code>and</code>」と指定してください。「<code>ANDNOT</code>」や「<code>OR</code>」でも同様です。</p>
 
@@ -341,7 +343,7 @@ category=chorus,j-pop
 
 <p>英語やその他のヨーロッパの言語にのように空白で語が区切れる場合、空白で区切った文字列を検索語として登録します。「<code>It is fine today.</code>」という文字列からは、「<code>it</code>」「<code>is</code>」「<code>fine</code>」「<code>today</code>」「<code>.</code>」の5個の検索語が抽出されます。</p>
 
-<p>日本語をはじめとする、語を空白で区切れない言語の場合は、N-gramという手法で検索語が抽出されます。連続するN文字を語として、1文字ずつずらしながら語を抽出する手法です。Hyper Estraierでは2文字を語とするので2-gram（bi-gram）と呼ばれることもあります。例えば「本日は晴天なり。」という文字列からは、「<code>本日</code>」「<code>日は</code>」「<code>は晴</code>」「<code>晴天</code>」「<code>天な</code>」「<code>なり</code>」「<code>り。</code>」の7個の検索語が抽出されます。</p>
+<p>日本語をはじめとする、語を空白で区切れない言語の場合は、N-gramという手法で検索語が抽出されます。連続するN文字を語として、1文字ずつずらしながら語を抽出する手法です。Hyper Estraier Encoreでは2文字を語とするので2-gram（bi-gram）と呼ばれることもあります。例えば「本日は晴天なり。」という文字列からは、「<code>本日</code>」「<code>日は</code>」「<code>は晴</code>」「<code>晴天</code>」「<code>天な</code>」「<code>なり</code>」「<code>り。</code>」の7個の検索語が抽出されます。</p>
 
 <p>2-gram方式だと1文字の検索語はどの検索キーにも一致しないことになりますが、それでも検索は可能です。1文字の検索語が指定された場合、その文字を含む全てのキーのOR検索が内部的に行われます。ただし、調べるキーの数が多いので、検索速度は少し遅くなります。</p>
 
@@ -353,15 +355,15 @@ category=chorus,j-pop
 
 <h3>精度の制限による高速化</h3>
 
-<p>Hyper Estraierでは、N-gramの連接判定の精度を落とすことによって処理速度を上げる工夫がなされています。検索やインデックス更新の処理が高速な反面、まれに検索語が含まれない文書が該当とみなされることがあります。検索語の後ろ2語まで（日本語なら3文字分）の連接判定しかしませんので、「<code>シミュレーション</code>」で検索した場合、「<code>シミュレ</code>」「<code>ミュレー</code>」「<code>ュレーシ</code>」「<code>レーショ</code>」「<code>ーション</code>」の全てを含む文書は、たとえ「<code>シミュレーション</code>」がなくても該当してしまいます。また、連接判定にはハッシュ関数を用いますので、まれ（251分の1の確率）に精度が3語分を下回ることがあります。</p>
+<p>Hyper Estraier Encoreでは、N-gramの連接判定の精度を落とすことによって処理速度を上げる工夫がなされています。検索やインデックス更新の処理が高速な反面、まれに検索語が含まれない文書が該当とみなされることがあります。検索語の後ろ2語まで（日本語なら3文字分）の連接判定しかしませんので、「<code>シミュレーション</code>」で検索した場合、「<code>シミュレ</code>」「<code>ミュレー</code>」「<code>ュレーシ</code>」「<code>レーショ</code>」「<code>ーション</code>」の全てを含む文書は、たとえ「<code>シミュレーション</code>」がなくても該当してしまいます。また、連接判定にはハッシュ関数を用いますので、まれ（251分の1の確率）に精度が3語分を下回ることがあります。</p>
 
 <p>ただし、スニペットを作る際には文字列の逐次探索による完全な連接判定が行われますので、スニペットの中に検索語のハイライトが含まれない文書は検索ゴミであることが容易にわかります。なお、<code>estseek.cgi</code>には、検索ゴミであることを検出して表示しないようにするオプションもあります。</p>
 
 <h3>分かち書き方式との比較</h3>
 
-<p>N-gram方式と対比されるアプローチとして、分かち書き方式があります。自然言語の文法や語法に基づく方法で単語や形態素を切り出すものです。Hyper Estraierの前身である<a href="http://fallabs.com/estraier/">Estraier</a>では分かち書き方式を採用していました。N-gram方式は再現率がほぼ完璧である（検索漏れがない）という利点がありますが、分かち書き方式に比べて精度が低い（検索ゴミが多い）という欠点があります。検索システムの用途や対象文書の内容によってどちらが適するかは変わってきます。興味を持たれた方は、Hyper EstraierとEstraierの使い勝手を比べてみてください。</p>
+<p>N-gram方式と対比されるアプローチとして、分かち書き方式があります。自然言語の文法や語法に基づく方法で単語や形態素を切り出すものです。Hyper Estraier Encoreの前身である<a href="http://fallabs.com/estraier/">Estraier</a>では分かち書き方式を採用していました。N-gram方式は再現率がほぼ完璧である（検索漏れがない）という利点がありますが、分かち書き方式に比べて精度が低い（検索ゴミが多い）という欠点があります。検索システムの用途や対象文書の内容によってどちらが適するかは変わってきます。興味を持たれた方は、Hyper Estraier EncoreとEstraierの使い勝手を比べてみてください。</p>
 
-<p>Hyper Estraierには、N-gram方式と分かち書き方式を併用するオプションもあります。N-gramで抽出した語からなるメインインデックスとは別に、分かち書きで抽出した重要語だけからなる補助インデックスを管理します。そうすると、検索語が適切に分かち書きできた場合は、補助インデックスを見て、高速で高精度な検索を行うことができます。分かち書きがうまく行えなかった場合も、メインインデックスを見れば、検索漏れのない結果を提示することができます。</p>
+<p>Hyper Estraier Encoreには、N-gram方式と分かち書き方式を併用するオプションもあります。N-gramで抽出した語からなるメインインデックスとは別に、分かち書きで抽出した重要語だけからなる補助インデックスを管理します。そうすると、検索語が適切に分かち書きできた場合は、補助インデックスを見て、高速で高精度な検索を行うことができます。分かち書きがうまく行えなかった場合も、メインインデックスを見れば、検索漏れのない結果を提示することができます。</p>
 
 <hr />
 
@@ -491,7 +493,7 @@ category=chorus,j-pop
 </dl>
 
 <dl>
-<dt><kbd>estcmd search [-nl|-nb] [-pidx <var>path</var>] [-ic <var>enc</var>] [-vu|-va|-vf|-vs|-vh|-vx|-dd] [-sn <var>wnum</var> <var>hnum</var> <var>anum</var>] [-kn <var>num</var>] [-ec <var>rn</var>] [-gs|-gf|-ga] [-cd] [-ni] [-sf|-sfr|-sfu|-sfi] [-hs] [-attr <var>expr</var>] [-ord <var>expr</var>] [-max <var>num</var>] [-sk <var>num</var>] [-aux <var>num</var>] [-dis <var>name</var>] [-sim <var>id</var>] <var>db</var> [<var>phrase</var>]</kbd></dt>
+<dt><kbd>estcmd search [-nl|-nb] [-pidx <var>path</var>] [-ic <var>enc</var>] [-vu|-va|-vf|-vs|-vh|-vx|-dd] [-sn <var>wnum</var> <var>hnum</var> <var>anum</var>] [-kn <var>num</var>] [-ec <var>rn</var>] [-gs|-gf|-ga] [-cd] [-ni] [-sf|-sfr|-sfu|-sfi] [-hs] [-attr <var>expr</var>] [-ord <var>expr</var>] [-max <var>num</var>] [-sk <var>num</var>] [-aux <var>num</var>] [-dis <var>name</var>] [-sim <var>id</var>] [-wmax <var>num</var>] <var>db</var> [<var>phrase</var>]</kbd></dt>
 <dd>インデックスに登録された文書を検索します。</dd>
 <dd><var>phrase</var>は全文検索の検索式を指定します。</dd>
 <dd>-nlを付けると、ファイルロックをかけないでインデックスを開きます。</dd>
@@ -526,6 +528,7 @@ category=chorus,j-pop
 <dd>-auxは補助インデックスの結果を採用する許可を指定します。0を越えない値を指定すると補助インデックスは使われません。デフォルトは32件です。</dd>
 <dd>-disは重複回避属性の名前を指定します。</dd>
 <dd>-simは類似検索の種文書のID番号を指定します。</dd>
+<dd>-wmaxはワイルドカード展開の最大語数を指定します。デフォルトは256です。</dd>
 </dl>
 
 <dl>
@@ -783,7 +786,7 @@ estcmd gather -cl -fx ".xdw" "T@estfxxdwtotxt" -fz -ic CP932 -sd -cm casket .
 
 <h3>応用例：XML形式の検索結果</h3>
 
-<p>各種のスクリプト言語からHyper Estraierの検索結果を手軽に利用するためには、<code>estcmd</code>のXML出力機能を用いるとよいでしょう。XMLの詳しい書式については<code>estresult.dtd</code>をご覧ください。</p>
+<p>各種のスクリプト言語からHyper Estraier Encoreの検索結果を手軽に利用するためには、<code>estcmd</code>のXML出力機能を用いるとよいでしょう。XMLの詳しい書式については<code>estresult.dtd</code>をご覧ください。</p>
 
 <pre>estcmd search -vx -max 8 casket 'socket AND shutdown'
 </pre>
@@ -815,7 +818,7 @@ pseudoindex:
 replace: ^file:///home/mikio/public_html/{{!}}http://localhost/
 replace: /index\.html?${{!}}/
 showlreal: false
-deftitle: Hyper Estraier: a full-text search system for communities
+deftitle: Hyper Estraier Encore: a full-text search system for communities
 formtype: normal
 perpage: 10 100 10
 attrselect: false
@@ -904,7 +907,7 @@ logformat: {time}\t{REMOTE_ADDR}:{REMOTE_PORT}\t{cond}\n
 
 <h3>トップページファイル</h3>
 
-<p>検索用CGIスクリプトに最初にアクセスした際、あるいは検査条件を全く入力しないでアクセスした際に表示されるメッセージを記述したファイルです。記述してある内容が検索結果の位置にそのまま挿入されます。デフォルトではHyper Estraierのバナーが記述してありますが、お好みのバナーに変えたり、システムのメンテナンス情報などを記載したりするとよいでしょう。</p>
+<p>検索用CGIスクリプトに最初にアクセスした際、あるいは検査条件を全く入力しないでアクセスした際に表示されるメッセージを記述したファイルです。記述してある内容が検索結果の位置にそのまま挿入されます。デフォルトではHyper Estraier Encoreのバナーが記述してありますが、お好みのバナーに変えたり、システムのメンテナンス情報などを記載したりするとよいでしょう。</p>
 
 <h3>ヘルプファイル</h3>
 
@@ -1049,7 +1052,7 @@ allowrx: ^file:///home/mikio/Mail/
 
 <h2 id="indexstructure">インデックスの構造</h2>
 
-<p>ここでは、Hyper Estraierのインデックスの詳細な構造について説明します。補助インデックスや属性インデックスを用いて検索を高速化する方法についても説明します。</p>
+<p>ここでは、Hyper Estraier Encoreのインデックスの詳細な構造について説明します。補助インデックスや属性インデックスを用いて検索を高速化する方法についても説明します。</p>
 
 <h3>基本的な構造</h3>
 
@@ -1106,7 +1109,7 @@ estcmd extkeys -dfdb mydfdb casket
 <pre>estcmd extkeys -um casket
 </pre>
 
-<p>日本語用の形態素解析器<a href="http://mecab.sourceforge.jp/">MeCab</a>を分かち書きに利用することもできます。Hyper Estraierをビルドする前の設定で「<code>./configure --enable-mecab</code>」として、Hyper EstraierにMeCabを組み込んでおくと、字種による分かち書きの代わりにMeCabが使われます。</p>
+<p>日本語用の形態素解析器<a href="http://mecab.sourceforge.jp/">MeCab</a>を分かち書きに利用することもできます。Hyper Estraier Encoreをビルドする前の設定で「<code>./configure --enable-mecab</code>」として、Hyper Estraier EncoreにMeCabを組み込んでおくと、字種による分かち書きの代わりにMeCabが使われます。</p>
 
 <p>なお、形態素解析によるキーワード抽出ではTF-IDFによるスコアの調整は不要ですので、文書の登録とキーワードの抽出を同時に行っても精度を保つことができます。以下のようにします。</p>
 
@@ -1141,11 +1144,11 @@ estcmd extkeys -dfdb mydfdb casket
 
 <h2 id="tips">助言</h2>
 
-<p>ここでは、アプリケーションとしてのHyper Estraierを活用するためのコツをいくつか紹介します。</p>
+<p>ここでは、アプリケーションとしてのHyper Estraier Encoreを活用するためのコツをいくつか紹介します。</p>
 
 <h3>大規模なインデックスの構築</h3>
 
-<p>文書を登録する処理では、インデックスの内部で持っているデータベースに膨大な量の書き込みを行います。データベースを参照するオーバーヘッドを抑えるために、Hyper Estraierは処理中のデータをメモリ上にキャッシュする仕組みを持っています。キャッシュが大きい方が登録処理は高速になりますが、スワップが起きるとかえって効率が落ちますので、実メモリの4割程度の大きさにするとよいようです。例えば1GBの実メモリを搭載しているマシンで作業をする場合、400MB程度が適切でしょう。また、10万件以上の文書を登録する場合、インデックスを作成する際に大規模用のチューニングをするように指定すると処理効率が向上します。</p>
+<p>文書を登録する処理では、インデックスの内部で持っているデータベースに膨大な量の書き込みを行います。データベースを参照するオーバーヘッドを抑えるために、Hyper Estraier Encoreは処理中のデータをメモリ上にキャッシュする仕組みを持っています。キャッシュが大きい方が登録処理は高速になりますが、スワップが起きるとかえって効率が落ちますので、実メモリの4割程度の大きさにするとよいようです。例えば1GBの実メモリを搭載しているマシンで作業をする場合、400MB程度が適切でしょう。また、10万件以上の文書を登録する場合、インデックスを作成する際に大規模用のチューニングをするように指定すると処理効率が向上します。</p>
 
 <p><code>estcmd</code>の<code>-cs</code>オプションを使うとキャッシュサイズの指定ができます。サイズはメガバイト単位で指定します。デフォルトは64MBです。また、<code>-xl</code>オプションや<code>-xh</code>オプションを使うと大規模用のチューニングがなされます。つまり、以下のようにして文書を登録するとよいでしょう。</p>
 
@@ -1233,7 +1236,7 @@ showlreal: true
 
 <h3>Windows用のフィルタ</h3>
 
-<p>Windows用のバイナリパッケージには、<code>xdoc2txt</code>というフィルタプログラムが同梱されています。これをHyper Estraierから呼び出すためのestxfiltというラッパーも同梱されています。それらを使うと、PDF、RTF、MS-Word、MS-Excel、MS-PowerPointなどのファイルをインデックスに登録できます。同梱のコマンドとDLLは全てパスの通った場所に置いてください。</p>
+<p>Windows用のバイナリパッケージには、<code>xdoc2txt</code>というフィルタプログラムが同梱されています。これをHyper Estraier Encoreから呼び出すためのestxfiltというラッパーも同梱されています。それらを使うと、PDF、RTF、MS-Word、MS-Excel、MS-PowerPointなどのファイルをインデックスに登録できます。同梱のコマンドとDLLは全てパスの通った場所に置いてください。</p>
 
 <p>例えば、「<code>D:\mikio\doc</code>」以下のファイルを登録したインデックスを作成するには、以下のようなコマンドを実行します。</p>
 
@@ -1262,7 +1265,7 @@ mp3info -p '@title=%t\n@author=%a\n@type=audio/mpeg\n\n%c\n\t%t\n\t%a\n' "$1" |
 <pre>estcmd gather -cl -fx .mp3 estmp3todraft -fz -sd -cm casket .
 </pre>
 
-<p>各種のフィルタが充実すると多くのユーザに喜んでいただけるので、もしあなたが有用なフィルタを作ったなら、Hyper EstraierのMLにぜひ紹介してください。</p>
+<p>各種のフィルタが充実すると多くのユーザに喜んでいただけるので、もしあなたが有用なフィルタを作ったなら、Hyper Estraier EncoreのMLにぜひ紹介してください。</p>
 
 <h3>ユーザインターフェイスのカスタマイズ</h3>
 
@@ -1304,7 +1307,7 @@ genrecheck: web{{!}}Webコンテンツ
 
 <h3>FastCGI</h3>
 
-<p>裏技の範疇に入りますが、<code>estseek.cgi</code>を高速化したプログラムを作ることが可能です。これはUNIX版のみの機能で、FastCGIという規格に基づくものです。FastCGIの実行環境（mod_fcgiなど）とライブラリ（libfcgi）をインストールした上で、Hyper Estraierのソースパッケージの中で「<code>make fcgi</code>」を実行してください。すると「<code>estseek.fcgi</code>」というプログラムが作成されます。これをestseek.cgiの代わりに利用してください。</p>
+<p>裏技の範疇に入りますが、<code>estseek.cgi</code>を高速化したプログラムを作ることが可能です。これはUNIX版のみの機能で、FastCGIという規格に基づくものです。FastCGIの実行環境（mod_fcgiなど）とライブラリ（libfcgi）をインストールした上で、Hyper Estraier Encoreのソースパッケージの中で「<code>make fcgi</code>」を実行してください。すると「<code>estseek.fcgi</code>」というプログラムが作成されます。これをestseek.cgiの代わりに利用してください。</p>
 
 <p>FastCGIスクリプトはCGIスクリプトとほぼ同じインターフェイスでありながら、常駐プロセスになることが特徴です。したがって、プロセスを複製したりDBに接続したりするオーバーヘッドがかからないので、応答時間がかなり短くなります。同時接続数が多いサイトではこの方法はオススメです。FastCGIの詳細については<a href="http://www.fastcgi.com/">FastCGIのホームページ</a>をご覧ください。</p>
 
@@ -1439,7 +1442,7 @@ genrecheck: web{{!}}Webコンテンツ
 
 <h3>インデックスのマイグレーション</h3>
 
-<p>Hyper Estraierのバージョンによってインデックスの形式が異なる場合があります。今後はフォーマットをなるべく変更しないようにするつもりですが、万が一変更された場合には、既存のインデックスのデータをダンプしておき、そのデータを新しいバージョンのHyper Estraierに読み込ませるとよいでしょう。この手法は、バージョン間のマイグレーションだけでなく、エンディアンの異なるプラットフォーム間でのマイグレーションにも有効です。</p>
+<p>Hyper Estraier Encoreのバージョンによってインデックスの形式が異なる場合があります。今後はフォーマットをなるべく変更しないようにするつもりですが、万が一変更された場合には、既存のインデックスのデータをダンプしておき、そのデータを新しいバージョンのHyper Estraier Encoreに読み込ませるとよいでしょう。この手法は、バージョン間のマイグレーションだけでなく、エンディアンの異なるプラットフォーム間でのマイグレーションにも有効です。</p>
 
 <p>データをダンプするには、以下のようなコマンドを実行します。</p>
 
@@ -1483,7 +1486,7 @@ genrecheck: web{{!}}Webコンテンツ
 </dl>
 
 <dl>
-<dt>Q. EstraierとHyper Estraierを同一システムに共存させることは可能ですか。</dt>
+<dt>Q. EstraierとHyper Estraier Encoreを同一システムに共存させることは可能ですか。</dt>
 <dd>A. はい。可能です。コマンド名やライブラリ名などが重複しないように配慮していますので、互いに衝突することはありません。</dd>
 </dl>
 
@@ -1498,8 +1501,8 @@ genrecheck: web{{!}}Webコンテンツ
 </dl>
 
 <dl>
-<dt>Q. 私の商用製品でHyper Estraierを使ってよいですか？</dt>
-<dd>A. はい。Hyper Estraierを商用の製品やサービスで利用することは全く問題ありませんし、ライセンス料も一切かかりませんし、利用することを作者に報告する必要もありませんし、利用していることをどこかに明記する必要もありません。なお、LGPLにおいては、ライブラリをスタティックリンクした製品を配布するかダイナミックリンクにしてアプリケーションとライブラリを別途に配布するかは本質的な問題ではありません。どちらにせよHyper Estraier自体を無改変で配布するのであればソースコード公開の義務は発生しません。たとえHyper Estraierを改変したとしても、改変したHyper Estraier自体のソースコードを公開すればよいだけで、あなたの製品のその他のモジュールのソースコードを公開する必要はありません。詳しくは「<code>COPYING</code>」ファイルを読んでください。</dd>
+<dt>Q. 私の商用製品でHyper Estraier Encoreを使ってよいですか？</dt>
+<dd>A. はい。Hyper Estraier Encoreを商用の製品やサービスで利用することは全く問題ありませんし、ライセンス料も一切かかりませんし、利用することを作者に報告する必要もありませんし、利用していることをどこかに明記する必要もありません。なお、LGPLにおいては、ライブラリをスタティックリンクした製品を配布するかダイナミックリンクにしてアプリケーションとライブラリを別途に配布するかは本質的な問題ではありません。どちらにせよHyper Estraier Encore自体を無改変で配布するのであればソースコード公開の義務は発生しません。たとえHyper Estraier Encoreを改変したとしても、改変したHyper Estraier Encore自体のソースコードを公開すればよいだけで、あなたの製品のその他のモジュールのソースコードを公開する必要はありません。詳しくは「<code>COPYING</code>」ファイルを読んでください。</dd>
 </dl>
 
 <dl>

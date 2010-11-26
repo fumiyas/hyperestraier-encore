@@ -9,14 +9,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta name="author" content="Mikio Hirabayashi" />
-<meta name="keywords" content="Hyper Estraier, Estraier, full-text search, API" />
-<meta name="description" content="User's Guide of Hyper Estraier" />
+<meta name="keywords" content="Hyper Estraier Encore, Estraier, full-text search, API" />
+<meta name="description" content="User's Guide of Hyper Estraier Encore" />
 <link rel="contents" href="./" />
 <link rel="alternate" href="uguide-ja.html" hreflang="ja" title="the Japanese version" />
 <link rel="stylesheet" href="common.css" />
 <link rel="icon" href="icon16.png" />
 <link rev="made" href="mailto:mikio@fallabs.com" />
-<title>User's Guide of Hyper Estraier Version 1</title>
+<link rev="made" href="mailto:fumiyas@osstech.co.jp" />
+<title>User's Guide of Hyper Estraier Encore Version 1</title>
 </head>
 
 <body>
@@ -24,7 +25,8 @@
 <h1>User's Guide</h1>
 
 <div class="note">Copyright (C) 2004-2007 Mikio Hirabayashi</div>
-<div class="note">Last Update: Tue, 06 Mar 2007 12:05:18 +0900</div>
+<div class="note">Copyright (C) 2010 SATOH Fumiyasu</div>
+<div class="note">Last Update: 2010-11-26</div>
 <div class="navi">[<span class="void">English</span>/<a href="uguide-ja.html" hreflang="ja">Japanese</a>] [<a href="index.html">HOME</a>]</div>
 
 <hr />
@@ -45,19 +47,19 @@
 
 <h2 id="introduction">Introduction</h2>
 
-<p>This guide describes detail of how to use applications of Hyper Estraier.  If you have never read <a href="intro-en.html">the introduction document</a>, please read it beforehand.</p>
+<p>This guide describes detail of how to use applications of Hyper Estraier Encore.  If you have never read <a href="intro-en.html">the introduction document</a>, please read it beforehand.</p>
 
-<p>Hyper Estraier is a full-text search system using <strong>index database</strong>.  So, before search, it is needed to prepare an index into which target documents have been registered.  Hyper Estraier provides the administration command `<code>estcmd</code>' and the CGI script `<code>estsearch.cgi</code>' for search.  The former is used in order to administrate the index by command line interface.  The latter is used in order to search the index for documents with a web browser.</p>
+<p>Hyper Estraier Encore is a full-text search system using <strong>index database</strong>.  So, before search, it is needed to prepare an index into which target documents have been registered.  Hyper Estraier Encore provides the administration command `<code>estcmd</code>' and the CGI script `<code>estsearch.cgi</code>' for search.  The former is used in order to administrate the index by command line interface.  The latter is used in order to search the index for documents with a web browser.</p>
 
 <p><code>estcmd</code> can handle various file formats and features various operations to administrate index.  How to use it is described in this guide.</p>
 
-<p>Hyper Estraier supports such various methods for search as combining some search phrase and search with attributes of documents.  Moreover, it is possible to customize presentation according to the configuration of <code>estseek.cgi</code>.  How to do it is described in this guide.</p>
+<p>Hyper Estraier Encore supports such various methods for search as combining some search phrase and search with attributes of documents.  Moreover, it is possible to customize presentation according to the configuration of <code>estseek.cgi</code>.  How to do it is described in this guide.</p>
 
 <hr />
 
 <h2 id="attributes">Attributes</h2>
 
-<p>Not only information of the body text but also such attributes as the title, the modification date, and so on can be added to documents handled by Hyper Estraier.  Attributes are used for such various purposes as search with attributes and determination of difference updating.</p>
+<p>Not only information of the body text but also such attributes as the title, the modification date, and so on can be added to documents handled by Hyper Estraier Encore.  Attributes are used for such various purposes as search with attributes and determination of difference updating.</p>
 
 <h3>Attribute Name</h3>
 
@@ -151,7 +153,7 @@
 
 <h3>Document Draft</h3>
 
-<p><strong>Document draft</strong> is a original format of Hyper Estraier.  It is possible to handle various formats in the integrative way by using document draft as intermediate format.  By default, files whose names end with "<code>.est</code>" are treated as document draft.</p>
+<p><strong>Document draft</strong> is a original format of Hyper Estraier Encore.  It is possible to handle various formats in the integrative way by using document draft as intermediate format.  By default, files whose names end with "<code>.est</code>" are treated as document draft.</p>
 
 <p>Though format of document draft is similar to RFC822, detail points differ.  The delimiter for headers is not "<code>:</code>" but "<code>=</code>".  Moreover, no space character is needed after "<code>=</code>".  The following is an example data to handle a MIDI document.</p>
 
@@ -397,7 +399,7 @@ How I wonder what you are!
 </dl>
 
 <dl>
-<dt><kbd>estcmd search [-nl|-nb] [-pidx <var>path</var>] [-ic <var>enc</var>] [-vu|-va|-vf|-vs|-vh|-vx|-dd] [-sn <var>wnum</var> <var>hnum</var> <var>anum</var>] [-kn <var>num</var>] [-ec <var>rn</var>] [-gs|-gf|-ga] [-cd] [-ni] [-sf|-sfr|-sfu|-sfi] [-hs] [-attr <var>expr</var>] [-ord <var>expr</var>] [-max <var>num</var>] [-sk <var>num</var>] [-aux <var>num</var>] [-dis <var>name</var>] [-sim <var>id</var>] <var>db</var> [<var>phrase</var>]</kbd></dt>
+<dt><kbd>estcmd search [-nl|-nb] [-pidx <var>path</var>] [-ic <var>enc</var>] [-vu|-va|-vf|-vs|-vh|-vx|-dd] [-sn <var>wnum</var> <var>hnum</var> <var>anum</var>] [-kn <var>num</var>] [-ec <var>rn</var>] [-gs|-gf|-ga] [-cd] [-ni] [-sf|-sfr|-sfu|-sfi] [-hs] [-attr <var>expr</var>] [-ord <var>expr</var>] [-max <var>num</var>] [-sk <var>num</var>] [-aux <var>num</var>] [-dis <var>name</var>] [-sim <var>id</var>] [-wmax <var>num</var>] <var>db</var> [<var>phrase</var>]</kbd></dt>
 <dd>Search an index for documents.</dd>
 <dd><var>phrase</var> specifies the search phrase.</dd>
 <dd>If -nl is specified, the index is opened without file locking.</dd>
@@ -432,6 +434,7 @@ How I wonder what you are!
 <dd>-aux specifies permission to adopt result of the auxiliary index.  If it is not more than 0, the auxiliary index is not used.  By default, it is 32.</dd>
 <dd>-dis specifies the name of the distinct attribute.</dd>
 <dd>-sim specifies the ID number of the seed document for similarity search.</dd>
+<dd>-wmax specifies the maximum number of expansion of wild cards.  By default, it is 256.</dd>
 </dl>
 
 <dl>
@@ -633,7 +636,7 @@ pseudoindex:
 replace: ^file:///home/mikio/public_html/{{!}}http://localhost/
 replace: /index\.html?${{!}}/
 showlreal: false
-deftitle: Hyper Estraier: a full-text search system for communities
+deftitle: Hyper Estraier Encore: a full-text search system for communities
 formtype: normal
 perpage: 10 100 10
 attrselect: false
@@ -718,7 +721,7 @@ logformat: {time}\t{REMOTE_ADDR}:{REMOTE_PORT}\t{cond}\n
 
 <h3>Top Page File</h3>
 
-<p>When a user access the CGI script first or if no configuration is input, the content of the top page file is displayed instead of the search result.  By default, the banner of Hyper Estraier is described there.</p>
+<p>When a user access the CGI script first or if no configuration is input, the content of the top page file is displayed instead of the search result.  By default, the banner of Hyper Estraier Encore is described there.</p>
 
 <h3>Help File</h3>
 
