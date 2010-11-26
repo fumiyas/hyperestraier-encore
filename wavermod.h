@@ -157,6 +157,7 @@ typedef struct {                         /* type of structure for waver */
   char *draftdir;                        /* path of the draft directory */
   char *entitydir;                       /* path of the entity directory */
   char *postproc;                        /* postprocessor for retrieved files */
+  int  maxlinknum;                       /* maximum number of links per page */
   time_t stime;                          /* start time */
   int curnum;                            /* current number of documents */
   int curnode;                           /* current using node */

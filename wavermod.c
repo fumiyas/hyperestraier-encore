@@ -286,6 +286,9 @@ int waver_init(const char *rootdir, int options){
     fprintf(ofp, "# postprocessor for retrieved files\n");
     fprintf(ofp, "postproc:\n");
     fprintf(ofp, "\n");
+    fprintf(ofp, "# maximum number of links per page (minimum 1024)\n");
+    fprintf(ofp, "maxlinknum: 1024\n");
+    fprintf(ofp, "\n");
     if(fclose(ofp) == EOF) err = TRUE;
   } else {
     err = TRUE;
@@ -426,6 +429,7 @@ WAVER *waver_open(const char *rootdir){
   waver->curnum = 0;
   waver->curnode = 0;
   waver->minload = 1.0;
+  waver->maxlinknum = 1024;
   logfile = LOGFILE;
   loglevel = LL_INFO;
   for(i = 0; i < cblistnum(lines); i++){
@@ -573,6 +577,8 @@ WAVER *waver_open(const char *rootdir){
     } else if(cbstrfwimatch(rp, "postproc:")){
       rp = skiplabel(rp);
       if(rp[0] != '\0' && !waver->postproc) waver->postproc = cbmemdup(rp, -1);
+    } else if(cbstrfwimatch(rp, "maxlinknum:")){
+      waver->maxlinknum = atoi(skiplabel(rp));
     }
   }
   if(!log_open(rootdir, logfile, loglevel, FALSE)){
@@ -592,6 +598,7 @@ WAVER *waver_open(const char *rootdir){
   if(waver->period < 1) waver->period = 1;
   if(waver->revisit < 1) waver->revisit = 1;
   if(waver->cachesize < 1) waver->cachesize = 1;
+  if(waver->maxlinknum < 1024) waver->maxlinknum = 1024;
   cblistclose(lines);
   est_mtdb_set_informer(index, db_informer, NULL);
   est_mtdb_set_cache_size(index, waver->cachesize, -1, -1, -1);

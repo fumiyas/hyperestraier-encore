@@ -197,7 +197,7 @@ static void enqueuelinks(WAVER *waver, const char *base, CBLIST *links, CBMAP *k
   CBMAP *pkwords, *ulinks;
   const char *vbuf;
   char numbuf[NUMBUFSIZ], *ubuf, *pv, *benc, *tenc;
-  int i, j, vsiz, lnum, llen, slash, vnum, *svec, *tvec, num, allow;
+  int i, j, vsiz, lnum, llen, slash, vnum, *svec, *tvec, num, allow, linknum;
   double similarity, lnumtune, depthtune, masstune, priority, remoteness;
   if(depth >= waver->maxdepth) return;
   if(!kwords || cbmaprnum(waver->kwords) < 1){
@@ -241,7 +241,7 @@ static void enqueuelinks(WAVER *waver, const char *base, CBLIST *links, CBMAP *k
   lnum = cblistnum(links) + 4;
   lnumtune = pow(lnum, 0.7);
   depthtune = pow(depth + 7, 0.8);
-  for(i = 0; i < cblistnum(links) && i < 1024; i++){
+  for(i = 0, linknum = 0; i < cblistnum(links) && linknum <= waver->maxlinknum; i++){
     vbuf = cblistval(links, i, &vsiz);
     ubuf = cbmemdup(vbuf, vsiz);
     if((pv = strchr(ubuf, '#')) != NULL) *pv = '\0';
@@ -267,6 +267,7 @@ static void enqueuelinks(WAVER *waver, const char *base, CBLIST *links, CBMAP *k
       free(ubuf);
       continue;
     }
+    linknum++;
     masstune = 1.0;
     if((pv = strstr(ubuf, "://")) != NULL && (pv = strchr(pv + 3, '/')) != NULL){
       vbuf = cbmapget(waver->sites, ubuf, pv - ubuf + 1, NULL);
