@@ -9,14 +9,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta name="author" content="Mikio Hirabayashi" />
-<meta name="keywords" content="Hyper Estraier, Estraier, full-text search, API, Node, P2P" />
-<meta name="description" content="P2P Guide of Hyper Estraier" />
+<meta name="keywords" content="Hyper Estraier Encore, Estraier, full-text search, API, Node, P2P" />
+<meta name="description" content="P2P Guide of Hyper Estraier Encore" />
 <link rel="contents" href="./" />
 <link rel="alternate" href="nguide-en.html" hreflang="en" title="the English version" />
 <link rel="stylesheet" href="common.css" />
 <link rel="icon" href="icon16.png" />
 <link rev="made" href="mailto:mikio@fallabs.com" />
-<title>P2P Guide of Hyper Estraier Version 1 (Japanese)</title>
+<link rev="made" href="mailto:fumiyas@osstech.co.jp" />
+<title>P2P Guide of Hyper Estraier Encore Version 1 (Japanese)</title>
 </head>
 
 <body>
@@ -49,9 +50,9 @@
 
 <h2 id="introduction">はじめに</h2>
 
-<p>このガイドでは、Hyper EstraierのP2P機構の詳細な使い方を説明します。<a href="uguide-ja.html">ユーザガイド</a>をまだお読みでない場合は先にそちらに目を通しておいてください。</p>
+<p>このガイドでは、Hyper Estraier EncoreのP2P機構の詳細な使い方を説明します。<a href="uguide-ja.html">ユーザガイド</a>をまだお読みでない場合は先にそちらに目を通しておいてください。</p>
 
-<p><code>estseek.cgi</code>で検索を行う場合、起動する度にデータベースを立ち上げ直すので、処理効率が悪いです。また、<code>estcmd</code>でデータベースの更新作業を行っている間は、データベースがロックされてしまうので検索ができません。これらの問題に対処するために、Hyper EstraierはC/S（クライアント/サーバ）方式のサーバプログラムを提供します。データベースを内包したプロセスをシステムに常駐させておいて、それをネットワーク経由で操作するものです。C/S方式には以下の利点があります。</p>
+<p><code>estseek.cgi</code>で検索を行う場合、起動する度にデータベースを立ち上げ直すので、処理効率が悪いです。また、<code>estcmd</code>でデータベースの更新作業を行っている間は、データベースがロックされてしまうので検索ができません。これらの問題に対処するために、Hyper Estraier EncoreはC/S（クライアント/サーバ）方式のサーバプログラムを提供します。データベースを内包したプロセスをシステムに常駐させておいて、それをネットワーク経由で操作するものです。C/S方式には以下の利点があります。</p>
 
 <ul>
 <li>サーバとクライアントを別々のマシン上で動作させることができます。</li>
@@ -70,7 +71,7 @@
 
 <h2 id="architecture">アーキテクチャ</h2>
 
-<p>ここでは、Hyper EstraierにおけるP2Pのアーキテクチャについて説明します。</p>
+<p>ここでは、Hyper Estraier EncoreにおけるP2Pのアーキテクチャについて説明します。</p>
 
 <h3>ノードマスタとノードサーバ</h3>
 
@@ -96,7 +97,7 @@
 
 <h3>アプリケーションの例</h3>
 
-<p>Hyper EstraierのノードAPIを使った最も興味深いアプリケーションとして、<a href="http://modestraier.sourceforge.net/">mod_estraier</a>が挙げられます。Webサーバ（Apache）のモジュールとして動作して、プロクシとして仲介したコンテンツをインデックスに登録するソフトウェアです。フォワードプロクシとして使えば、自分や仲間が見たことのあるページのみを対象とした検索エンジンができます。リバースプロクシとして使えば、掲示板やWikiはもちろん、いかなるWebアプリケーションにも検索機能を組み込めます。このように、様々なアプリケーションと連携して高度な検索システムを簡単に作れるのがノードAPIの最大の特徴です。</p>
+<p>Hyper Estraier EncoreのノードAPIを使った最も興味深いアプリケーションとして、<a href="http://modestraier.sourceforge.net/">mod_estraier</a>が挙げられます。Webサーバ（Apache）のモジュールとして動作して、プロクシとして仲介したコンテンツをインデックスに登録するソフトウェアです。フォワードプロクシとして使えば、自分や仲間が見たことのあるページのみを対象とした検索エンジンができます。リバースプロクシとして使えば、掲示板やWikiはもちろん、いかなるWebアプリケーションにも検索機能を組み込めます。このように、様々なアプリケーションと連携して高度な検索システムを簡単に作れるのがノードAPIの最大の特徴です。</p>
 
 <hr />
 
@@ -1622,7 +1623,7 @@ logformat: {time}\t{REMOTE_ADDR}:{REMOTE_PORT}\t{cond}\t{hnum}\n
 
 <h2 id="tips">助言</h2>
 
-<p>ここでは、Hyper EstraierのP2P機構を活用するためのコツをいくつか紹介します。</p>
+<p>ここでは、Hyper Estraier EncoreのP2P機構を活用するためのコツをいくつか紹介します。</p>
 
 <h3>パラメータの詳細</h3>
 
@@ -1679,7 +1680,7 @@ logformat: {time}\t{REMOTE_ADDR}:{REMOTE_PORT}\t{cond}\t{hnum}\n
 </tr>
 </table>
 
-<p>認証機構があっても平文をネットワーク上に流すのではセキュリティとしては不十分です。特にHTTPの基本認証のセキュリティは低く、邪悪な人達には全く無力と言っても過言ではありません。したがって、重要なデータを扱う際には、通信を暗号化することをお薦めします。ただし、Hyper Estraier自体は暗号通信の機能を提供しませんので、Apache等をリバースプロクシとして利用してください。同時接続数が多い場合は市販のSSLアクセラレータを利用するとよいでしょう。</p>
+<p>認証機構があっても平文をネットワーク上に流すのではセキュリティとしては不十分です。特にHTTPの基本認証のセキュリティは低く、邪悪な人達には全く無力と言っても過言ではありません。したがって、重要なデータを扱う際には、通信を暗号化することをお薦めします。ただし、Hyper Estraier Encore自体は暗号通信の機能を提供しませんので、Apache等をリバースプロクシとして利用してください。同時接続数が多い場合は市販のSSLアクセラレータを利用するとよいでしょう。</p>
 
 <p>このような認証機構が気に入らない場合は、フロントエンドのクライアントを実装して、そこでアカウント管理と認証を行ってください。フロントエンドがバックエンドであるノードマスタやノードサーバにアクセスする際には常にスーパーユーザを用いるとよいでしょう。Apacheをフロントエンドにすれば、mod_auth_ldapを使ってLDAPによる認証を行ったり、mod_auth_radiusを使ってRADIUSによる認証を行ったりできます。Locationディレクティブなどを駆使すれば各メソッドのアクセス権限を詳細に設定することもできます。</p>
 
@@ -1750,7 +1751,7 @@ done
 
 <h3>Windowsサービス</h3>
 
-<p>Windows版のバイナリパッケージには、ノードマスタのWindowsサービス版も同梱されます。ログオンしていない状態でもノードマスタを動かしたい場合にはWindowsサービスが役立ちます。ここでは、「<code>C:\hyperestraier</code>」の中にHyper EstraierのコマンドやDLLの一式を置いて、そこにパスを通してあることを前提に、Windowsサービス版の導入手順を説明します。</p>
+<p>Windows版のバイナリパッケージには、ノードマスタのWindowsサービス版も同梱されます。ログオンしていない状態でもノードマスタを動かしたい場合にはWindowsサービスが役立ちます。ここでは、「<code>C:\hyperestraier</code>」の中にHyper Estraier EncoreのコマンドやDLLの一式を置いて、そこにパスを通してあることを前提に、Windowsサービス版の導入手順を説明します。</p>
 
 <p>まず、サーバルートディレクトリを作成します。コマンドプロンプトで以下を実行します。</p>
 

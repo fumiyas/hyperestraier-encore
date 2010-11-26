@@ -9,14 +9,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta http-equiv="Content-Style-Type" content="text/css" />
 <meta name="author" content="Mikio Hirabayashi" />
-<meta name="keywords" content="Hyper Estraier, Estraier, full-text search, API, Node, P2P" />
-<meta name="description" content="P2P Guide of Hyper Estraier" />
+<meta name="keywords" content="Hyper Estraier Encore, Estraier, full-text search, API, Node, P2P" />
+<meta name="description" content="P2P Guide of Hyper Estraier Encore" />
 <link rel="contents" href="./" />
 <link rel="alternate" href="nguide-ja.html" hreflang="ja" title="the Japanese version" />
 <link rel="stylesheet" href="common.css" />
 <link rel="icon" href="icon16.png" />
 <link rev="made" href="mailto:mikio@fallabs.com" />
-<title>P2P Guide of Hyper Estraier Version 1</title>
+<link rev="made" href="mailto:fumiyas@osstech.co.jp" />
+<title>P2P Guide of Hyper Estraier Encore Version 1</title>
 </head>
 
 <body>
@@ -48,7 +49,7 @@
 
 <h2 id="introduction">Introduction</h2>
 
-<p>This guide describes Hyper Estraier's client/server (C/S) and peer to peer (P2P) architecture.  If you haven't read <a href="uguide-en.html">user's guide</a> yet, now is a good moment to do so.</p>
+<p>This guide describes Hyper Estraier Encore's client/server (C/S) and peer to peer (P2P) architecture.  If you haven't read <a href="uguide-en.html">user's guide</a> yet, now is a good moment to do so.</p>
 
 <p>There was several problems which where motivation for C/S architecture.  <code>estseek.cgi</code> is inefficient because it reconnects to database for each search query.  Database updates using <code>estcmd</code> prevents searches on same database because <code>estcmd</code> uses locks when doing update.  To solve those problems, <code>estmaster</code> server process is provided.  This is resident (daemon) process which has control over database and provides services via network.</p>
 
@@ -71,7 +72,7 @@
 
 <h2 id="architecture">Architecture</h2>
 
-<p>This section describes the P2P architecture of Hyper Estraier.</p>
+<p>This section describes the P2P architecture of Hyper Estraier Encore.</p>
 
 <h3>Node Master and Node Server</h3>
 
@@ -97,7 +98,7 @@
 
 <h3>Example Application</h3>
 
-<p><a href="http://modestraier.sourceforge.net/">mod_estraier</a> is the most interesting application of the node API of Hyper Estraier.  It works as a module of a Web server (Apache) and register contents mediated by its proxy mechanism.  Using it as a forward proxy, you can enjoy a search engine whose targets are documents which you (or your comrades) have seen.  Using it as a reverse proxy, you can add search feature to any web application as well as BBS and Wiki.  That is, the greatest characteristic of the node API is helping you to develop advanced search systems combining various applications.</p>
+<p><a href="http://modestraier.sourceforge.net/">mod_estraier</a> is the most interesting application of the node API of Hyper Estraier Encore.  It works as a module of a Web server (Apache) and register contents mediated by its proxy mechanism.  Using it as a forward proxy, you can enjoy a search engine whose targets are documents which you (or your comrades) have seen.  Using it as a reverse proxy, you can add search feature to any web application as well as BBS and Wiki.  That is, the greatest characteristic of the node API is helping you to develop advanced search systems combining various applications.</p>
 
 <hr />
 
@@ -398,7 +399,7 @@ uismlrtune: 16 1024 4096
 
 <p>By accessing the URL which is the URL of a node server followed by "<code>/search_ui</code>", you can use the search interface.  There are some anchors with such labels as "<code>LINK#1</code>" in the result page.  They express nodes linked from the current node.  If you select one of them, you move to the node and then search with the current conditions are performed.</p>
 
-<p>If you select the link "<code>Atom</code>" or "<code>RSS</code>" in the result page, you get the search result in Atom or RSS format.  By registering the URL to an application supporting Atom 1.0 or RSS 1.0, you can monitor the search result periodically.  In order to work together with such site as Google, Wikipedia and so on, Hyper Estraier supports OpenSearch 1.1.  To get the description for OpenSearch, access the URL of the node server trailing "<code>/opensearch</code>".</p>
+<p>If you select the link "<code>Atom</code>" or "<code>RSS</code>" in the result page, you get the search result in Atom or RSS format.  By registering the URL to an application supporting Atom 1.0 or RSS 1.0, you can monitor the search result periodically.  In order to work together with such site as Google, Wikipedia and so on, Hyper Estraier Encore supports OpenSearch 1.1.  To get the description for OpenSearch, access the URL of the node server trailing "<code>/opensearch</code>".</p>
 
 <hr />
 
