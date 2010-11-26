@@ -1871,8 +1871,8 @@ static void *est_url_shuttle_impl(void *targ){
   if(reqheads){
     for(i = 0; i < cblistnum(reqheads); i++){
       rp = cblistval(reqheads, i, &size);
-      cbdatumprintf(datum, rp, size);
-      cbdatumprintf(datum, "\r\n", 2);
+      cbdatumcat(datum, rp, size);
+      cbdatumcat(datum, "\r\n", 2);
     }
   }
   cbdatumprintf(datum, "\r\n");

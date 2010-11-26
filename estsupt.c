@@ -631,7 +631,7 @@ static void *procsearch(void *targ){
   argp = (TARGSRCH *)targ;
   url = cbdatumopen(argp->url, -1);
   rmap = argp->rmap;
-  cbdatumprintf(url, "?", -1);
+  cbdatumcat(url, "?", 1);
   for(i = 0; i < cblistnum(p_phraselist); i++){
     rp = cblistval(p_phraselist, i, NULL);
     if(*rp != '\0') cbdatumprintf(url, "phrase%d=%?&", i + 1, rp);
