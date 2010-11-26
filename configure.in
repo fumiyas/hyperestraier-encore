@@ -8,7 +8,7 @@
 
 
 # Targets
-AC_INIT(hyperestraier, 1.4.13)
+AC_INIT(hyperestraier-encore, 1.5.0)
 
 # Export variables
 LIBVER=8

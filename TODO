@@ -1,0 +1,33 @@
+* tokyoestraier
+* hyperestraier-patches20071217.tgz:
+    - he1.4.12_03_crawl_highspeed.diff
+      TBD, Need refactoring
+    - he1.4.12_04_crawl_logroteto.diff
+      Rejected: Redundant feature
+    - he1.4.12_05_crawl_basicauth.diff
+      TBD, Need refactoring
+    - he1.4.12_06_crawl_denywiki.diff
+      Rejected: Not for general purpose, Deny unexpected URI by faulty denyrx
+    - he1.4.12_07_crawl_wordlength.diff
+      TBD, Need refactoring
+    - he1.4.12_08_docslim.diff
+      TBD, Need refactoring
+    - he1.4.12_09_mecablimit.diff
+      Rejected: Must fix MeCab
+    - he1.4.12_10_titleuriscore.diff
+      TBD, Need refactoring
+    - he1.4.12_13_crawl_cookie.diff
+      TBD, Need refactoring, Correct cookie handling
+    - he1.4.12_14_crawl_post.diff
+      TBD, Need refactoring
+    - he1.4.12_15_crawl_intervalthreadnum.diff
+      TBD
+    - he1.4.12_16_crawl_lastmodified.diff
+      Rejected: Wrong patch
+    - he1.4.12_17_crawl_option.diff
+      TBD
+    - he1.4.12_18_crawl_eternal.diff
+      TBD
+    - he1.4.12_21_crawl_failretry.diff
+      TBD
+
