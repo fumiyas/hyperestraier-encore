@@ -71,6 +71,7 @@
 #define DATTRNDURL     "#nodeurl"        /* name of the pseudo-attribute of the node URL */
 #define DATTRNDLABEL   "#nodelabel"      /* name of the pseudo-attribute of the node label */
 #define DATTRNDSCORE   "#nodescore"      /* name of the pseudo-attribute of the node score */
+#define DATTRSCORE     "#score"          /* name of the pseudo-attribute of the document score */
 #define DATTRLFILE     "_lfile"          /* name of the attribute of the file name */
 
 enum {                                   /* enumeration for running modes */

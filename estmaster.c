@@ -2542,6 +2542,7 @@ static void catdocdata(CBDATUM *datum, NODE *node, RESDOC *resdoc, CBLIST *words
   const char *kbuf, *vbuf;
   char *snippet;
   int i, id, ksiz, vsiz;
+  cbdatumprintf(datum, "%s=%d\n", DATTRSCORE, resdoc->score);
   if(resdoc->doc){
     list = est_doc_attr_names(resdoc->doc);
     for(i = 0; i < cblistnum(list); i++){
