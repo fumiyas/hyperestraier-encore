@@ -23,7 +23,7 @@
 #define IREFRESHSEC    3                 /* wait time for refreshing and charging */
 #define ICHARGENUM     16                /* number of keys per charging */
 #define IFLUSHNUM      32768             /* number of keys per flushing */
-#define LINKMASKMAX    9                 /* maximum number of link masks */
+#define LINKMASKMAX    31                /* maximum number of link masks */
 #define LCSRCHRESMIN   31                /* minimum number of result to get from local */
 #define RMSRCHRESMIN   16                /* minimum number of result to get from local */
 #define FCLOSECONNNUM  10                /* number of over connections for forced closing */
@@ -3129,7 +3129,7 @@ static void sendnodecmdsearch(int clsock, REQUEST *req, NODE *node){
   if((tmp = cbmapget(req->params, "mask", -1, NULL)) != NULL && tmp[0] != '\0'){
     num = atoi(tmp);
     for(i = 0; i <= LINKMASKMAX; i++){
-      masks[i] = num & (1 << i);
+      masks[i] = (num & (1 << i)) ? 1 : 0;
     }
   } else if((tmp = cbmapget(req->params, "allmask", -1, NULL)) != NULL && tmp[0] != '\0'){
     memset(masks, 1, LINKMASKMAX+1);
@@ -4204,7 +4204,7 @@ static void sendnodecmdsearchui(int clsock, REQUEST *req, NODE *node){
   if((tmp = cbmapget(req->params, "mask", -1, NULL)) != NULL && tmp[0] != '\0'){
     num = atoi(tmp);
     for(i = 0; i <= LINKMASKMAX; i++){
-      masks[i] = num & (1 << i);
+      masks[i] = (num & (1 << i)) ? 1 : 0;
     }
   } else if((tmp = cbmapget(req->params, "allmask", -1, NULL)) != NULL && tmp[0] != '\0'){
     memset(masks, 1, LINKMASKMAX+1);
@@ -4786,7 +4786,7 @@ static void sendnodecmdsearchatom(int clsock, REQUEST *req, NODE *node){
   if((tmp = cbmapget(req->params, "mask", -1, NULL)) != NULL && tmp[0] != '\0'){
     num = atoi(tmp);
     for(i = 0; i <= LINKMASKMAX; i++){
-      masks[i] = num & (1 << i);
+      masks[i] = (num & (1 << i)) ? 1 : 0;
     }
   } else if((tmp = cbmapget(req->params, "allmask", -1, NULL)) != NULL && tmp[0] != '\0'){
     memset(masks, 1, LINKMASKMAX+1);
@@ -5144,7 +5144,7 @@ static void sendnodecmdsearchrss(int clsock, REQUEST *req, NODE *node){
   if((tmp = cbmapget(req->params, "mask", -1, NULL)) != NULL && tmp[0] != '\0'){
     num = atoi(tmp);
     for(i = 0; i <= LINKMASKMAX; i++){
-      masks[i] = num & (1 << i);
+      masks[i] = (num & (1 << i)) ? 1 : 0;
     }
   } else if((tmp = cbmapget(req->params, "allmask", -1, NULL)) != NULL && tmp[0] != '\0'){
     memset(masks, 1, LINKMASKMAX+1);
