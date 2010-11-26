@@ -13,7 +13,7 @@
  * Boston, MA 02111-1307 USA.
  *************************************************************************************************/
 
-
+#include <netinet/tcp.h>
 #include "estraier.h"
 #include "estmtdb.h"
 #include "estnode.h"
@@ -1423,6 +1423,8 @@ int est_get_client_sock(const char *addr, int port){
   struct sockaddr_in address;
   struct linger li;
   int ost, sock;
+  int flag = 1;
+
   assert(addr && port >= 0);
   if(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &ost) != 0) return -1;
   memset(&address, 0, sizeof(address));
@@ -1442,6 +1444,12 @@ int est_get_client_sock(const char *addr, int port){
     est_sock_close(sock);
     pthread_setcancelstate(ost, NULL);
     return -1;
+  }
+  if(setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(flag))
+	 == -1){
+	  est_sock_close(sock);
+	  pthread_setcancelstate(ost, NULL);
+	  return -1;
   }
   if(connect(sock, (struct sockaddr *)&address, sizeof(address)) == -1){
     est_sock_close(sock);
