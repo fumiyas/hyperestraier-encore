@@ -2460,6 +2460,13 @@ static void *searchremote(void *targ){
   if(req->estvia) est_node_add_header(tnode, ESTHTHVIA, req->estvia);
   est_node_add_header(tnode, ESTHTHVIA, myurl);
   est_node_set_snippet_width(tnode, wwidth, hwidth, awidth);
+  if (req->name && req->passwd){
+    CBMAP *elems = cburlbreak(url);
+    if (!cbmapget(elems, "authority", -1, NULL)){
+      est_node_set_auth(tnode, req->name, req->passwd);
+    }
+    cbmapclose(elems);
+  }
   if((nres = est_node_search(tnode, cond, depth - 1)) != NULL){
     cnt = 0;
     while(est_noderes_shift_doc(nres, &attrs, &snippet)){
