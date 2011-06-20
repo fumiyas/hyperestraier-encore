@@ -66,7 +66,6 @@ LIBS = @LIBS@
 MTLIBS = @MYMTLIBS@
 SKLIBS = @MYSKLIBS@
 APPLIBS = @MYAPPLIBS@
-LDENV = LD_RUN_PATH=$(MYLIBDIR):@MYRUNPATH@
 RUNENV = LD_LIBRARY_PATH=$(MYLIBDIR):@MYRUNPATH@
 MYPOSTCMD = @MYPOSTCMD@
 
@@ -688,93 +687,93 @@ libestcore.a : estraier.o md5.o
 
 
 estcmd : estcmd.o mymorph.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estcmd.o mymorph.o \
+	$(CC) $(CFLAGS) -o $@ estcmd.o mymorph.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estmttest : estmttest.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estmttest.o \
+	$(CC) $(CFLAGS) -o $@ estmttest.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estmaster : estmaster.o mastermod.o mymorph.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estmaster.o mastermod.o mymorph.o \
+	$(CC) $(CFLAGS) -o $@ estmaster.o mastermod.o mymorph.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estmaster-sv : estmaster.c mastermod.o mymorph.o $(MYLIBS)
-	$(LDENV) $(CC) $(CPPFLAGS) $(CFLAGS) -DMYWINSERV=1 -o $@ \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMYWINSERV=1 -o $@ \
 	  estmaster.c mastermod.o mymorph.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estbutler : estbutler.o mastermod.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estbutler.o mastermod.o \
+	$(CC) $(CFLAGS) -o $@ estbutler.o mastermod.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estcall : estcall.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estcall.o \
+	$(CC) $(CFLAGS) -o $@ estcall.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estwaver : estwaver.o wavermod.o mymorph.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estwaver.o wavermod.o mymorph.o \
+	$(CC) $(CFLAGS) -o $@ estwaver.o wavermod.o mymorph.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estload : estload.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estload.o \
+	$(CC) $(CFLAGS) -o $@ estload.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estseek.cgi : estseek.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estseek.o \
+	$(CC) $(CFLAGS) -o $@ estseek.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estseek.fcgi : estseek.c $(MYLIBS)
-	$(LDENV) $(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estseek.c \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estseek.c \
 	  $(LDFLAGS) -lfcgi -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estfraud.cgi : estfraud.o mastermod.o mymorph.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estfraud.o mastermod.o mymorph.o \
+	$(CC) $(CFLAGS) -o $@ estfraud.o mastermod.o mymorph.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estfraud.fcgi : estfraud.c mastermod.o mymorph.o $(MYLIBS)
-	$(LDENV) $(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estfraud.c mastermod.o mymorph.o \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estfraud.c mastermod.o mymorph.o \
 	  $(LDFLAGS) -lfcgi -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estproxy.cgi : estproxy.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estproxy.o \
+	$(CC) $(CFLAGS) -o $@ estproxy.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estproxy.fcgi : estproxy.c $(MYLIBS)
-	$(LDENV) $(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estproxy.c \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estproxy.c \
 	  $(LDFLAGS) -lfcgi -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estscout.cgi : estscout.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estscout.o \
+	$(CC) $(CFLAGS) -o $@ estscout.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estscout.fcgi : estscout.c $(MYLIBS)
-	$(LDENV) $(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estscout.c \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estscout.c \
 	  $(LDFLAGS) -lfcgi -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estsupt.cgi : estsupt.o $(MYLIBS)
-	$(LDENV) $(CC) $(CFLAGS) -o $@ estsupt.o \
+	$(CC) $(CFLAGS) -o $@ estsupt.o \
 	  $(LDFLAGS) -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
 estsupt.fcgi : estsupt.c $(MYLIBS)
-	$(LDENV) $(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estsupt.c \
+	$(CC) $(CPPFLAGS) $(CFLAGS) -DMYFCGI -o $@ estsupt.c \
 	  $(LDFLAGS) -lfcgi -lestraier $(APPLIBS) $(SKLIBS) $(MTLIBS) $(LIBS)
 
 
