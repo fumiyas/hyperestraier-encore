@@ -11,8 +11,8 @@
 AC_INIT(hyperestraier-encore, 1.5.0)
 
 # Export variables
-LIBVER=8
-LIBREV=38
+LIBVER=9
+LIBREV=0
 PROTVER="1.0"
 MYCFLAGS="-Wall -fPIC -fsigned-char -O3 -fomit-frame-pointer -fforce-addr"
 MYCPPOPTS=""
