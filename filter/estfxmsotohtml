@@ -1,22 +1,16 @@
-#! /bin/sh
+#!/bin/sh
 
 #================================================================
 # extfxmsotohtml
 # Convert MS-Word, MS-Excel, or MS-PowerPoint into HTML
 #================================================================
 
-
-# set variables
-PATH="$PATH:/usr/local/bin:$HOME/bin:." ; export PATH
-progname="estfxmsotohtml"
-
-
 # check arguments
-if [ $# -lt 1 ]
-then
-  printf '%s: usage: %s infile [outfile]\n' "$progname" "$progname" 1>&2
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 INFILE [OUTFILE]" 1>&2
   exit 1
 fi
+
 infile="$1"
 outfile="$2"
 if [ -n "$ESTORIGFILE" ] && [ -f "$ESTORIGFILE" ]
@@ -24,14 +18,12 @@ then
   infile="$ESTORIGFILE"
 fi
 
-
 # check the input
 if [ "!" -f "$infile" ]
 then
   printf '%s: %s: no such file\n' "$progname" "$infile" 1>&2
   exit 1
 fi
-
 
 # initialize the output file
 if [ -n "$outfile" ]

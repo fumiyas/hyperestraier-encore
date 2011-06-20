@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 #================================================================
 # extfxpdftohtml
@@ -7,7 +7,6 @@
 
 
 # set variables
-PATH="$PATH:/usr/local/bin:$HOME/bin:." ; export PATH
 progname="estfxpdftohtml"
 
 
